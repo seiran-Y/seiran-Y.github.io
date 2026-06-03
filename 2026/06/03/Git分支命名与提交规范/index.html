@@ -375,6 +375,180 @@
     <article class="article-content markdown-body">
       <p>Git 规范不是为了把流程变复杂，而是为了让团队在协作时少猜一点。一个分支名能看出它在做什么，一个提交信息能说明这次修改的目的，一个稳定分支不被随手改动，后面排查问题、回滚版本、发布上线都会轻松很多。</p>
 <p>这篇文章结合常见的大厂 Git 代码规范、Git Flow 分支模型、Conventional Commits 提交约定，以及 Git 和 GitHub 官方文档，整理一套适合日常项目使用的分支命名、环境对应和提交信息规范。</p>
+<h2 id="项目-Git-整体结构图"><a href="#项目-Git-整体结构图" class="headerlink" title="项目 Git 整体结构图"></a>项目 Git 整体结构图</h2><style>
+.git-flow-panel {
+  margin: 1.4rem 0 1.8rem;
+  padding: 22px;
+  border: 1px solid #dde5ef;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.08);
+  overflow-x: auto;
+}
+.git-flow-board {
+  min-width: 920px;
+}
+.git-flow-title {
+  margin-bottom: 16px;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 700;
+}
+.git-flow-main {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.git-node {
+  position: relative;
+  min-height: 150px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: #fff;
+}
+.git-node:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  width: 14px;
+  height: 2px;
+  background: #94a3b8;
+}
+.git-node:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 4px);
+  right: -15px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #94a3b8;
+}
+.git-node strong {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.git-node p {
+  margin: 0 0 8px;
+  color: #334155;
+  line-height: 1.7;
+}
+.git-node small {
+  color: #64748b;
+  line-height: 1.6;
+}
+.git-feature { background: #fff7ed; }
+.git-feature strong { background: #ea580c; }
+.git-develop { background: #ecfdf5; }
+.git-develop strong { background: #16a34a; }
+.git-test { background: #eff6ff; }
+.git-test strong { background: #2563eb; }
+.git-release { background: #f7fee7; }
+.git-release strong { background: #65a30d; }
+.git-main { background: #fdf2f8; }
+.git-main strong { background: #db2777; }
+.git-hotfix {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1.2fr 2.4fr 1.4fr;
+  gap: 14px;
+  align-items: stretch;
+}
+.git-hotfix .git-node {
+  min-height: 118px;
+}
+.git-hotfix .git-node::before,
+.git-hotfix .git-node::after {
+  display: none;
+}
+.git-hotfix-line {
+  padding: 14px 18px;
+  border: 1px dashed #f59e0b;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #78350f;
+  line-height: 1.8;
+}
+.git-flow-notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.git-flow-note {
+  padding: 12px 14px;
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #334155;
+  line-height: 1.7;
+}
+</style>
+
+<div class="git-flow-panel">
+<div class="git-flow-board">
+<div class="git-flow-title">普通需求主线：开发、测试、预上线、生产发布</div>
+<div class="git-flow-main">
+<div class="git-node git-feature">
+<strong>feature/*</strong>
+<p>功能分支</p>
+<small>从 develop 拉出，用来开发单个需求或模块。完成后通过评审合并回 develop，不直接进入生产。</small>
+</div>
+<div class="git-node git-develop">
+<strong>develop</strong>
+<p>开发集成分支</p>
+<small>对应 DEV 环境，汇总最新开发成果。要求基本可运行，作为后续测试和发布的来源。</small>
+</div>
+<div class="git-node git-test">
+<strong>test</strong>
+<p>功能测试分支</p>
+<small>对应 FAT 环境，用于测试人员做功能测试、联调测试和回归验证。</small>
+</div>
+<div class="git-node git-release">
+<strong>release/*</strong>
+<p>预上线分支</p>
+<small>对应 UAT 环境，用于上线前验收。此阶段只处理阻塞发布的问题，不再加入大功能。</small>
+</div>
+<div class="git-node git-main">
+<strong>main/master</strong>
+<p>生产稳定分支</p>
+<small>对应 PRO 环境，保存已发布版本。通常开启分支保护，只接收 release 或 hotfix 合并。</small>
+</div>
+</div>
+<div class="git-hotfix">
+<div class="git-node git-main">
+<strong>main/master</strong>
+<p>线上版本来源</p>
+<small>线上问题以当前生产代码为基准修复，避免混入未上线功能。</small>
+</div>
+<div class="git-hotfix-line">
+<strong>hotfix/*：线上紧急修复分支</strong><br>
+从 main/master 拉出，只修复生产环境紧急 bug。修复完成后，一路合并回 main/master 并打补丁版本标签，同时同步回 develop，防止后续版本漏掉这次修复。
+</div>
+<div class="git-node git-develop">
+<strong>develop</strong>
+<p>同步修复结果</p>
+<small>hotfix 回合到 develop 后，后续功能版本也会带上这次线上修复。</small>
+</div>
+</div>
+<div class="git-flow-notes">
+<div class="git-flow-note"><strong>开发流向：</strong>feature/* -> develop -> test -> release/* -> main/master。</div>
+<div class="git-flow-note"><strong>发布流向：</strong>release/* 验收通过后合并到 main/master，并打 tag 记录版本。</div>
+<div class="git-flow-note"><strong>修复流向：</strong>hotfix/* 必须同时回到 main/master 和 develop。</div>
+</div>
+</div>
+</div>
+
+<p>可以把它理解成两条主线：普通需求从 <code>develop</code> 拉出 <code>feature/*</code>，测试通过后依次进入 <code>test</code>、<code>release/*</code> 和 <code>main/master</code>；线上紧急问题从 <code>main/master</code> 拉出 <code>hotfix/*</code>，修复后既要回到生产分支，也要同步回 <code>develop</code>，避免后续版本丢失修复。</p>
 <span id="more"></span>
 
 <h2 id="一、规范的核心思路"><a href="#一、规范的核心思路" class="headerlink" title="一、规范的核心思路"></a>一、规范的核心思路</h2><p>团队里使用 Git，最怕的不是命令不会敲，而是历史看不懂、分支不知道从哪里来、改动不知道要合到哪里去。</p>
@@ -812,7 +986,7 @@
     <div class="article-catelogue--wrapper">
       <div class="catelogue catelogue-1">
         <h3>目录</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%A7%84%E8%8C%83%E7%9A%84%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">一、规范的核心思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%B8%B8%E8%A7%81%E5%88%86%E6%94%AF%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">二、常见分支类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-master-main%EF%BC%9A%E7%94%9F%E4%BA%A7%E7%A8%B3%E5%AE%9A%E5%88%86%E6%94%AF"><span class="toc-number">2.1.</span> <span class="toc-text">1. master &#x2F; main：生产稳定分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-develop%EF%BC%9A%E5%BC%80%E5%8F%91%E9%9B%86%E6%88%90%E5%88%86%E6%94%AF"><span class="toc-number">2.2.</span> <span class="toc-text">2. develop：开发集成分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-feature-%EF%BC%9A%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91%E5%88%86%E6%94%AF"><span class="toc-number">2.3.</span> <span class="toc-text">3. feature&#x2F;*：功能开发分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-test%EF%BC%9A%E6%B5%8B%E8%AF%95%E5%88%86%E6%94%AF"><span class="toc-number">2.4.</span> <span class="toc-text">4. test：测试分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-release-%EF%BC%9A%E9%A2%84%E4%B8%8A%E7%BA%BF%E5%88%86%E6%94%AF"><span class="toc-number">2.5.</span> <span class="toc-text">5. release&#x2F;*：预上线分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-hotfix-%EF%BC%9A%E7%BA%BF%E4%B8%8A%E7%B4%A7%E6%80%A5%E4%BF%AE%E5%A4%8D%E5%88%86%E6%94%AF"><span class="toc-number">2.6.</span> <span class="toc-text">6. hotfix&#x2F;*：线上紧急修复分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%E4%B8%8E%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB"><span class="toc-number">3.</span> <span class="toc-text">三、分支与环境的对应关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%88%86%E6%94%AF%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="toc-number">4.</span> <span class="toc-text">四、分支命名规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83"><span class="toc-number">5.</span> <span class="toc-text">五、提交信息规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%B8%B8%E8%A7%81-commit-type"><span class="toc-number">6.</span> <span class="toc-text">六、常见 commit type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8D%95%E6%AC%A1%E6%8F%90%E4%BA%A4%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">7.</span> <span class="toc-text">七、单次提交注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%8F%90%E4%BA%A4%E9%94%99%E4%BA%86%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86"><span class="toc-number">8.</span> <span class="toc-text">八、提交错了怎么处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8F%AA%E6%98%AF%E6%8F%90%E4%BA%A4%E8%AF%B4%E6%98%8E%E5%86%99%E9%94%99%EF%BC%8C%E4%B8%94%E8%BF%98%E6%B2%A1%E6%8E%A8%E9%80%81"><span class="toc-number">8.1.</span> <span class="toc-text">1. 只是提交说明写错，且还没推送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%E6%BC%8F%E4%BA%86%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B8%94%E8%BF%98%E6%B2%A1%E6%8E%A8%E9%80%81"><span class="toc-number">8.2.</span> <span class="toc-text">2. 最近一次提交漏了文件，且还没推送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%E5%86%85%E5%AE%B9%E9%9C%80%E8%A6%81%E9%87%8D%E6%96%B0%E6%8B%86%E5%88%86"><span class="toc-number">8.3.</span> <span class="toc-text">3. 最近一次提交内容需要重新拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%A1%AE%E8%AE%A4%E8%A6%81%E4%B8%A2%E5%BC%83%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%BF%AE%E6%94%B9"><span class="toc-number">8.4.</span> <span class="toc-text">4. 确认要丢弃工作区修改</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%B8%B8%E7%94%A8%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="toc-number">9.</span> <span class="toc-text">九、常用开发流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%BC%80%E5%8F%91%E6%99%AE%E9%80%9A%E5%8A%9F%E8%83%BD"><span class="toc-number">9.1.</span> <span class="toc-text">1. 开发普通功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B5%8B%E8%AF%95%E4%B8%80%E6%89%B9%E5%8A%9F%E8%83%BD"><span class="toc-number">9.2.</span> <span class="toc-text">2. 测试一批功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%86%E5%A4%87%E5%8F%91%E5%B8%83%E7%89%88%E6%9C%AC"><span class="toc-number">9.3.</span> <span class="toc-text">3. 准备发布版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E5%A4%8D%E7%BA%BF%E4%B8%8A%E7%B4%A7%E6%80%A5%E9%97%AE%E9%A2%98"><span class="toc-number">9.4.</span> <span class="toc-text">4. 修复线上紧急问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%B8%BB%E5%88%86%E6%94%AF%E4%BF%9D%E6%8A%A4%E5%BB%BA%E8%AE%AE"><span class="toc-number">10.</span> <span class="toc-text">十、主分支保护建议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%AE%80%E6%B4%81%E7%89%88%E8%A7%84%E8%8C%83"><span class="toc-number">11.</span> <span class="toc-text">十一、简洁版规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">12.</span> <span class="toc-text">参考资料</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE-Git-%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="toc-number">1.</span> <span class="toc-text">项目 Git 整体结构图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%A7%84%E8%8C%83%E7%9A%84%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-number">2.</span> <span class="toc-text">一、规范的核心思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%B8%B8%E8%A7%81%E5%88%86%E6%94%AF%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.</span> <span class="toc-text">二、常见分支类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-master-main%EF%BC%9A%E7%94%9F%E4%BA%A7%E7%A8%B3%E5%AE%9A%E5%88%86%E6%94%AF"><span class="toc-number">3.1.</span> <span class="toc-text">1. master &#x2F; main：生产稳定分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-develop%EF%BC%9A%E5%BC%80%E5%8F%91%E9%9B%86%E6%88%90%E5%88%86%E6%94%AF"><span class="toc-number">3.2.</span> <span class="toc-text">2. develop：开发集成分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-feature-%EF%BC%9A%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91%E5%88%86%E6%94%AF"><span class="toc-number">3.3.</span> <span class="toc-text">3. feature&#x2F;*：功能开发分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-test%EF%BC%9A%E6%B5%8B%E8%AF%95%E5%88%86%E6%94%AF"><span class="toc-number">3.4.</span> <span class="toc-text">4. test：测试分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-release-%EF%BC%9A%E9%A2%84%E4%B8%8A%E7%BA%BF%E5%88%86%E6%94%AF"><span class="toc-number">3.5.</span> <span class="toc-text">5. release&#x2F;*：预上线分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-hotfix-%EF%BC%9A%E7%BA%BF%E4%B8%8A%E7%B4%A7%E6%80%A5%E4%BF%AE%E5%A4%8D%E5%88%86%E6%94%AF"><span class="toc-number">3.6.</span> <span class="toc-text">6. hotfix&#x2F;*：线上紧急修复分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%E4%B8%8E%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB"><span class="toc-number">4.</span> <span class="toc-text">三、分支与环境的对应关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%88%86%E6%94%AF%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="toc-number">5.</span> <span class="toc-text">四、分支命名规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83"><span class="toc-number">6.</span> <span class="toc-text">五、提交信息规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%B8%B8%E8%A7%81-commit-type"><span class="toc-number">7.</span> <span class="toc-text">六、常见 commit type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8D%95%E6%AC%A1%E6%8F%90%E4%BA%A4%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">8.</span> <span class="toc-text">七、单次提交注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%8F%90%E4%BA%A4%E9%94%99%E4%BA%86%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86"><span class="toc-number">9.</span> <span class="toc-text">八、提交错了怎么处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8F%AA%E6%98%AF%E6%8F%90%E4%BA%A4%E8%AF%B4%E6%98%8E%E5%86%99%E9%94%99%EF%BC%8C%E4%B8%94%E8%BF%98%E6%B2%A1%E6%8E%A8%E9%80%81"><span class="toc-number">9.1.</span> <span class="toc-text">1. 只是提交说明写错，且还没推送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%E6%BC%8F%E4%BA%86%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B8%94%E8%BF%98%E6%B2%A1%E6%8E%A8%E9%80%81"><span class="toc-number">9.2.</span> <span class="toc-text">2. 最近一次提交漏了文件，且还没推送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%E5%86%85%E5%AE%B9%E9%9C%80%E8%A6%81%E9%87%8D%E6%96%B0%E6%8B%86%E5%88%86"><span class="toc-number">9.3.</span> <span class="toc-text">3. 最近一次提交内容需要重新拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%A1%AE%E8%AE%A4%E8%A6%81%E4%B8%A2%E5%BC%83%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%BF%AE%E6%94%B9"><span class="toc-number">9.4.</span> <span class="toc-text">4. 确认要丢弃工作区修改</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%B8%B8%E7%94%A8%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="toc-number">10.</span> <span class="toc-text">九、常用开发流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%BC%80%E5%8F%91%E6%99%AE%E9%80%9A%E5%8A%9F%E8%83%BD"><span class="toc-number">10.1.</span> <span class="toc-text">1. 开发普通功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B5%8B%E8%AF%95%E4%B8%80%E6%89%B9%E5%8A%9F%E8%83%BD"><span class="toc-number">10.2.</span> <span class="toc-text">2. 测试一批功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%86%E5%A4%87%E5%8F%91%E5%B8%83%E7%89%88%E6%9C%AC"><span class="toc-number">10.3.</span> <span class="toc-text">3. 准备发布版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E5%A4%8D%E7%BA%BF%E4%B8%8A%E7%B4%A7%E6%80%A5%E9%97%AE%E9%A2%98"><span class="toc-number">10.4.</span> <span class="toc-text">4. 修复线上紧急问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%B8%BB%E5%88%86%E6%94%AF%E4%BF%9D%E6%8A%A4%E5%BB%BA%E8%AE%AE"><span class="toc-number">11.</span> <span class="toc-text">十、主分支保护建议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%AE%80%E6%B4%81%E7%89%88%E8%A7%84%E8%8C%83"><span class="toc-number">12.</span> <span class="toc-text">十一、简洁版规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">13.</span> <span class="toc-text">参考资料</span></a></li></ol>
       </div>
       
         <div class="catelogue catelogue-2">
