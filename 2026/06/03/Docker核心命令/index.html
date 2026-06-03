@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>我的技术与生活——Docker 核心命令 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/public.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/iconfont.css" />
+  <link rel="stylesheet" href="/css/APlayer.min.css" />
+  <script src="/js/APlayer.min.js"></script>
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/jquery.pjax.min.js"></script>
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `我的技术与生活——Docker 核心命令`
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  .gray {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+    display: none;
+    pointer-events: none;
+    background-color: #000;
+    mix-blend-mode: color;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="http://example.com/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"C. K. Ogden Basic English 18 个基本动词组合表达词典","path":"2026/05/26/Basic-English-18-基本动词组合表达词典/"},{"title":"博客搭建","path":"2025/11/02/博客搭建/"},{"title":"C. K. Ogden Basic English 850 基础词词典","path":"2026/05/26/Basic-English-850-基础词词典/"},{"title":"Docker 核心命令","path":"2026/06/03/Docker核心命令/"},{"title":"Git 常用命令速查","path":"2026/05/12/Git常用命令速查/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Seiran</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">中二</span>
+          <span class="main-left--tag">宅</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>いもうと</p>
+        <p>さいこ</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a target="_blank" rel="noopener" href="https://github.com/seiran-Y"><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>2</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>12</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>3 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/link">
+            <span class="header-menu--span">友情链接</span>
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>5 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>262天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v0.0.0</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <link rel="stylesheet" href="/css/partial/article.css" />
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">Docker 核心命令</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/">编程基础</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            <a class="tag-link" href="/tags/Docker/" rel="tag">Docker</a><a class="tag-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a><a class="tag-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a>
+          </div>
+          
+          <p class="article-info--date">日期：2026-06-03 20:00:00</p>
+        </div>
+        <img src="/imgs/default-cover.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content markdown-body">
+      <p>Docker 的命令看起来很多，但真正常用的部分可以围绕四个对象来理解：镜像、容器、网络和数据卷。镜像负责提供运行环境，容器是镜像运行后的实例，网络负责容器之间以及容器与外部之间的通信，数据卷负责保存那些不应该随着容器删除而丢失的数据。</p>
+<p>这篇文章整理 Docker 的核心命令、<code>docker run</code> 常见参数、数据卷挂载方式、<code>inspect</code> 查看细节的方法，以及 Docker Compose 的基本用法，适合作为日常使用时的速查笔记。</p>
+<span id="more"></span>
+
+<h2 id="一、先理解-Docker-的几个核心对象"><a href="#一、先理解-Docker-的几个核心对象" class="headerlink" title="一、先理解 Docker 的几个核心对象"></a>一、先理解 Docker 的几个核心对象</h2><table>
+<thead>
+<tr>
+<th>对象</th>
+<th>含义</th>
+<th>常见命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>镜像 Image</td>
+<td>一个只读模板，包含应用运行所需的文件、依赖和环境</td>
+<td><code>docker pull</code>、<code>docker images</code>、<code>docker image inspect</code></td>
+</tr>
+<tr>
+<td>容器 Container</td>
+<td>镜像运行后的实例，可以启动、停止、删除</td>
+<td><code>docker run</code>、<code>docker start</code>、<code>docker stop</code>、<code>docker rm</code></td>
+</tr>
+<tr>
+<td>网络 Network</td>
+<td>控制容器之间、容器与宿主机之间如何通信</td>
+<td><code>docker network create</code>、<code>docker network inspect</code></td>
+</tr>
+<tr>
+<td>数据卷 Volume</td>
+<td>独立于容器生命周期的数据存储空间</td>
+<td><code>docker volume create</code>、<code>docker volume inspect</code></td>
+</tr>
+</tbody></table>
+<p>简单来说：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">镜像 -&gt; 创建容器 -&gt; 容器运行服务 -&gt; 网络暴露服务 -&gt; 数据卷保存数据</span><br></pre></td></tr></table></figure>
+
+<p>理解这个顺序后，再看 Docker 命令会清楚很多。</p>
+<hr>
+<h2 id="二、镜像操作：Image-Management"><a href="#二、镜像操作：Image-Management" class="headerlink" title="二、镜像操作：Image Management"></a>二、镜像操作：Image Management</h2><h3 id="1-拉取镜像"><a href="#1-拉取镜像" class="headerlink" title="1. 拉取镜像"></a>1. 拉取镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull &lt;image_name&gt;:&lt;tag&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：从远程镜像仓库下载镜像到本地。最常见的远程仓库是 Docker Hub。如果不指定 <code>tag</code>，Docker 默认拉取 <code>latest</code> 版本。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull nginx</span><br><span class="line">docker pull mysql:8.0</span><br><span class="line">docker pull ubuntu:22.04</span><br></pre></td></tr></table></figure>
+
+<p>注意：<code>latest</code> 并不一定等于“最新稳定版”，它只是镜像维护者指定的默认标签。生产环境中更建议写清楚版本号，例如 <code>mysql:8.0</code>。</p>
+<h3 id="2-查看本地镜像"><a href="#2-查看本地镜像" class="headerlink" title="2. 查看本地镜像"></a>2. 查看本地镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure>
+
+<p>作用：列出本地已有镜像，包括镜像名、标签、镜像 ID、创建时间和大小。</p>
+<h3 id="3-查看镜像详细信息"><a href="#3-查看镜像详细信息" class="headerlink" title="3. 查看镜像详细信息"></a>3. 查看镜像详细信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image inspect &lt;image_name_or_id&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：以 JSON 格式查看镜像的完整元数据，例如默认启动命令、暴露端口、环境变量、层信息等。</p>
+<hr>
+<h2 id="三、容器生命周期管理：Container-Lifecycle"><a href="#三、容器生命周期管理：Container-Lifecycle" class="headerlink" title="三、容器生命周期管理：Container Lifecycle"></a>三、容器生命周期管理：Container Lifecycle</h2><h3 id="1-创建容器但不启动"><a href="#1-创建容器但不启动" class="headerlink" title="1. 创建容器但不启动"></a>1. 创建容器但不启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker create &lt;options&gt; &lt;image_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：根据镜像创建一个新容器，但不立即运行。此时容器处于 <code>Created</code> 状态。</p>
+<p>这个命令适合需要先准备容器定义，再单独控制启动时机的场景。日常使用中更常见的是 <code>docker run</code>。</p>
+<h3 id="2-创建并启动容器"><a href="#2-创建并启动容器" class="headerlink" title="2. 创建并启动容器"></a>2. 创建并启动容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run &lt;options&gt; &lt;image_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：创建并启动一个新容器。它可以理解为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker create + docker start</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name web -p 8080:80 nginx</span><br></pre></td></tr></table></figure>
+
+<p>含义：使用 <code>nginx</code> 镜像创建一个名为 <code>web</code> 的容器，在后台运行，并把宿主机 <code>8080</code> 端口映射到容器内部 <code>80</code> 端口。</p>
+<h3 id="3-启动已停止的容器"><a href="#3-启动已停止的容器" class="headerlink" title="3. 启动已停止的容器"></a>3. 启动已停止的容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start &lt;container_id_or_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：启动一个已经存在但处于停止状态的容器。</p>
+<p>注意：<code>docker start</code> 不会创建新容器，它只是让已有容器重新运行。</p>
+<h3 id="4-优雅停止容器"><a href="#4-优雅停止容器" class="headerlink" title="4. 优雅停止容器"></a>4. 优雅停止容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop &lt;container_id_or_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：停止正在运行的容器。Docker 会先向容器内主进程发送 <code>SIGTERM</code> 信号，让程序有机会保存数据并正常退出；如果超时仍未停止，再发送 <code>SIGKILL</code> 强制结束。</p>
+<h3 id="5-强制删除容器"><a href="#5-强制删除容器" class="headerlink" title="5. 强制删除容器"></a>5. 强制删除容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f &lt;container_id_or_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：强制删除容器。<code>-f</code> 是 <code>force</code>，会直接停止并移除容器。</p>
+<p>这个命令适合清理测试容器，但生产环境要谨慎使用，因为强制停止可能导致应用没有机会正常收尾。</p>
+<h3 id="6-查看容器列表"><a href="#6-查看容器列表" class="headerlink" title="6. 查看容器列表"></a>6. 查看容器列表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker ps</span><br></pre></td></tr></table></figure>
+
+<p>作用：查看当前正在运行的容器。</p>
+<p>常用扩展：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker ps -a</span><br></pre></td></tr></table></figure>
+
+<p>作用：查看所有容器，包括运行中、已停止、已创建但未启动的容器。</p>
+<hr>
+<h2 id="四、docker-run-核心参数"><a href="#四、docker-run-核心参数" class="headerlink" title="四、docker run 核心参数"></a>四、docker run 核心参数</h2><p><code>docker run</code> 是最常用也最容易写长的命令。它的参数主要用于配置容器运行方式、端口、挂载、环境变量和交互方式。</p>
+<h3 id="1-d：后台运行"><a href="#1-d：后台运行" class="headerlink" title="1. -d：后台运行"></a>1. <code>-d</code>：后台运行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d nginx</span><br></pre></td></tr></table></figure>
+
+<p><code>-d</code> 是 <code>detach</code>，表示容器在后台运行，命令执行后会返回容器 ID，并释放当前终端。</p>
+<p>如果不加 <code>-d</code>，容器会占用前台终端。对于 Nginx、MySQL、Redis 这类长期运行的服务，一般都会加 <code>-d</code>。</p>
+<h3 id="2-p：端口映射"><a href="#2-p：端口映射" class="headerlink" title="2. -p：端口映射"></a>2. <code>-p</code>：端口映射</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:80 nginx</span><br></pre></td></tr></table></figure>
+
+<p><code>-p &lt;host_port&gt;:&lt;container_port&gt;</code> 用于把宿主机端口映射到容器内部端口。</p>
+<p>示例中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-p 8080:80</span><br></pre></td></tr></table></figure>
+
+<p>表示访问宿主机的 <code>8080</code> 端口，请求会被转发到容器内部的 <code>80</code> 端口。</p>
+<h3 id="3-v：挂载目录或数据卷"><a href="#3-v：挂载目录或数据卷" class="headerlink" title="3. -v：挂载目录或数据卷"></a>3. <code>-v</code>：挂载目录或数据卷</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v &lt;host_or_volume&gt;:&lt;container_path&gt; &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：把宿主机路径或 Docker 数据卷挂载到容器内部，用于数据持久化或文件共享。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v /home/user/data:/app/data nginx</span><br></pre></td></tr></table></figure>
+
+<p>这样容器内 <code>/app/data</code> 目录的数据会和宿主机 <code>/home/user/data</code> 对应起来。</p>
+<h3 id="4-e：设置环境变量"><a href="#4-e：设置环境变量" class="headerlink" title="4. -e：设置环境变量"></a>4. <code>-e</code>：设置环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -e &lt;key&gt;=&lt;value&gt; &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：向容器内传递配置参数。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -e MYSQL_ROOT_PASSWORD=123456 mysql:8.0</span><br></pre></td></tr></table></figure>
+
+<p>这里通过环境变量设置 MySQL 的 root 密码。</p>
+<h3 id="5-it：交互式终端"><a href="#5-it：交互式终端" class="headerlink" title="5. -it：交互式终端"></a>5. <code>-it</code>：交互式终端</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><code>-i</code> 表示保持标准输入打开，<code>-t</code> 表示分配一个伪终端。两者常常组合使用，用于进入容器命令行。</p>
+<h3 id="6-rm：退出后自动删除"><a href="#6-rm：退出后自动删除" class="headerlink" title="6. --rm：退出后自动删除"></a>6. <code>--rm</code>：退出后自动删除</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> -it ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>作用：容器退出后自动删除容器文件系统和容器定义。</p>
+<p>它适合临时测试、一次性任务和工具容器，可以避免系统里残留大量停止状态的容器。</p>
+<h3 id="7-name：指定容器名称"><a href="#7-name：指定容器名称" class="headerlink" title="7. --name：指定容器名称"></a>7. <code>--name</code>：指定容器名称</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name my-nginx nginx</span><br></pre></td></tr></table></figure>
+
+<p>作用：给容器指定一个可读名称。后续可以直接用名称操作容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker stop my-nginx</span><br><span class="line">docker <span class="built_in">rm</span> my-nginx</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、inspect：查看对象详细信息"><a href="#五、inspect：查看对象详细信息" class="headerlink" title="五、inspect：查看对象详细信息"></a>五、inspect：查看对象详细信息</h2><p><code>inspect</code> 是 Docker 中非常重要的排查命令。它不会修改对象，只负责查看详细元数据。</p>
+<h3 id="1-查看容器信息"><a href="#1-查看容器信息" class="headerlink" title="1. 查看容器信息"></a>1. 查看容器信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect &lt;container_id_or_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>常见用途：</p>
+<ul>
+<li>查看容器 IP 地址</li>
+<li>查看挂载目录</li>
+<li>查看端口映射</li>
+<li>查看启动参数</li>
+<li>查看环境变量</li>
+<li>查看容器状态</li>
+</ul>
+<h3 id="2-查看镜像信息"><a href="#2-查看镜像信息" class="headerlink" title="2. 查看镜像信息"></a>2. 查看镜像信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image inspect &lt;image_name_or_id&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以查看镜像默认命令、暴露端口、环境变量和层信息。</p>
+<h3 id="3-查看数据卷信息"><a href="#3-查看数据卷信息" class="headerlink" title="3. 查看数据卷信息"></a>3. 查看数据卷信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume inspect &lt;volume_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最常看的字段是 <code>Mountpoint</code>，它表示这个数据卷在宿主机上的真实位置。</p>
+<h3 id="4-查看网络信息"><a href="#4-查看网络信息" class="headerlink" title="4. 查看网络信息"></a>4. 查看网络信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect &lt;network_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以查看网络驱动、子网、网关，以及连接到这个网络的容器。</p>
+<hr>
+<h2 id="六、网络管理：Network-Management"><a href="#六、网络管理：Network-Management" class="headerlink" title="六、网络管理：Network Management"></a>六、网络管理：Network Management</h2><h3 id="1-创建自定义网络"><a href="#1-创建自定义网络" class="headerlink" title="1. 创建自定义网络"></a>1. 创建自定义网络</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create &lt;network_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：创建一个 Docker 自定义网络，默认驱动通常是 <code>bridge</code>。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create app-net</span><br></pre></td></tr></table></figure>
+
+<p>处于同一个自定义网络中的容器，可以通过容器名称直接访问彼此。Docker 会在自定义网络中提供内置 DNS 解析。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name mysql --network app-net mysql:8.0</span><br><span class="line">docker run -d --name backend --network app-net my-backend</span><br></pre></td></tr></table></figure>
+
+<p>此时 <code>backend</code> 容器内部可以通过主机名 <code>mysql</code> 访问 MySQL 容器。</p>
+<h3 id="2-host-网络模式"><a href="#2-host-网络模式" class="headerlink" title="2. host 网络模式"></a>2. host 网络模式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --network host &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：让容器直接共享宿主机网络栈，不再拥有独立的网络隔离空间。</p>
+<p>特点：</p>
+<ul>
+<li>网络性能开销较低</li>
+<li>容器端口会直接占用宿主机端口</li>
+<li>网络隔离性变弱</li>
+</ul>
+<p>注意：<code>--network host</code> 更适合对网络性能要求很高、并且明确知道端口占用情况的场景。普通服务通常优先使用 <code>-p</code> 端口映射。</p>
+<hr>
+<h2 id="七、数据卷管理：Volume-Management"><a href="#七、数据卷管理：Volume-Management" class="headerlink" title="七、数据卷管理：Volume Management"></a>七、数据卷管理：Volume Management</h2><p>容器可以随时创建和删除，但数据通常不应该跟着容器一起消失。Docker 数据卷就是为持久化数据准备的。</p>
+<h3 id="1-创建数据卷"><a href="#1-创建数据卷" class="headerlink" title="1. 创建数据卷"></a>1. 创建数据卷</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume create &lt;volume_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：创建一个具名数据卷。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume create mysql_data</span><br></pre></td></tr></table></figure>
+
+<p>如果不指定名称，Docker 会生成匿名卷，名称通常是一串随机 Hash。</p>
+<h3 id="2-查看数据卷列表"><a href="#2-查看数据卷列表" class="headerlink" title="2. 查看数据卷列表"></a>2. 查看数据卷列表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<p>作用：列出当前宿主机上所有 Docker 管理的数据卷。</p>
+<h3 id="3-查看数据卷详细信息"><a href="#3-查看数据卷详细信息" class="headerlink" title="3. 查看数据卷详细信息"></a>3. 查看数据卷详细信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume inspect &lt;volume_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>输出是 JSON，最关键字段是 <code>Mountpoint</code>，通常位于：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/lib/docker/volumes/...</span><br></pre></td></tr></table></figure>
+
+<p>它记录了数据卷在宿主机文件系统中的真实路径。</p>
+<h3 id="4-删除数据卷"><a href="#4-删除数据卷" class="headerlink" title="4. 删除数据卷"></a>4. 删除数据卷</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume <span class="built_in">rm</span> &lt;volume_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>作用：删除指定数据卷。</p>
+<p>注意：正在被任何容器挂载的数据卷无法删除。即使容器已经停止，只要容器定义还存在，卷仍然被占用。需要先删除容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> &lt;container_id_or_name&gt;</span><br><span class="line">docker volume <span class="built_in">rm</span> &lt;volume_name&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-清理孤儿数据卷"><a href="#5-清理孤儿数据卷" class="headerlink" title="5. 清理孤儿数据卷"></a>5. 清理孤儿数据卷</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume prune</span><br></pre></td></tr></table></figure>
+
+<p>作用：删除所有当前未被容器使用的数据卷。</p>
+<p>警告：这个命令会永久删除数据。执行前要确认这些卷确实不再需要。</p>
+<hr>
+<h2 id="八、两种挂载方式：Volume-与-Bind-Mount"><a href="#八、两种挂载方式：Volume-与-Bind-Mount" class="headerlink" title="八、两种挂载方式：Volume 与 Bind Mount"></a>八、两种挂载方式：Volume 与 Bind Mount</h2><p><code>-v</code> 看起来只有一种写法，但实际分为两类：Docker 管理的数据卷，以及用户指定路径的绑定挂载。</p>
+<h3 id="1-具名-匿名数据卷：由-Docker-管理"><a href="#1-具名-匿名数据卷：由-Docker-管理" class="headerlink" title="1. 具名&#x2F;匿名数据卷：由 Docker 管理"></a>1. 具名&#x2F;匿名数据卷：由 Docker 管理</h3><p>具名卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v my_data:/app/data &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>匿名卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v /app/data &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>宿主机真实路径由 Docker 管理</li>
+<li>默认位于 <code>/var/lib/docker/volumes/</code></li>
+<li>更适合数据库、上传文件、应用运行数据等持久化场景</li>
+<li>第一次挂载具名卷时，如果容器目标目录内原本有初始数据，Docker 会把这些初始数据复制到数据卷中</li>
+</ul>
+<p>这个复制行为常被称为 <code>copy-up</code>。</p>
+<h3 id="2-绑定挂载：由用户控制路径"><a href="#2-绑定挂载：由用户控制路径" class="headerlink" title="2. 绑定挂载：由用户控制路径"></a>2. 绑定挂载：由用户控制路径</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v /absolute/host/path:/container/path &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Windows 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v C:\Users\Ye\project:/app &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>宿主机路径由用户指定</li>
+<li>必须使用绝对路径</li>
+<li>宿主机目录会直接覆盖容器内目标目录</li>
+<li>如果宿主机目录为空，容器内目标目录原有文件会被隐藏</li>
+<li>不会发生初始数据复制</li>
+</ul>
+<p>绑定挂载非常适合本地开发，例如把宿主机源代码实时同步到容器内。</p>
+<hr>
+<h2 id="九、只读挂载：-ro"><a href="#九、只读挂载：-ro" class="headerlink" title="九、只读挂载：:ro"></a>九、只读挂载：<code>:ro</code></h2><p>挂载时可以在最后添加权限修饰符。</p>
+<p>默认是读写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -v my_data:/app/data:rw &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p>只读挂载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -v my_config:/app/config:ro &lt;image&gt;</span><br><span class="line">docker run -v /etc/hosts:/etc/hosts:ro &lt;image&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>:ro</code> 表示容器只能读取挂载内容，不能修改。</p>
+<p>适用场景：</p>
+<ul>
+<li>防止容器修改宿主机敏感配置</li>
+<li>多个容器共享同一份配置，但只有部分容器允许写入</li>
+<li>运行不完全可信的程序时，降低误写风险</li>
+</ul>
+<hr>
+<h2 id="十、Docker-Compose：多容器编排"><a href="#十、Docker-Compose：多容器编排" class="headerlink" title="十、Docker Compose：多容器编排"></a>十、Docker Compose：多容器编排</h2><p>当应用只有一个容器时，<code>docker run</code> 足够使用。但真实项目往往包含前端、后端、数据库、缓存等多个服务，这时就适合使用 Docker Compose。</p>
+<p>现代 Docker 已经把 Compose 集成进 CLI，推荐写法是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose</span><br></pre></td></tr></table></figure>
+
+<p>早期独立工具写法是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-启动所有服务"><a href="#1-启动所有服务" class="headerlink" title="1. 启动所有服务"></a>1. 启动所有服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose up -d</span><br></pre></td></tr></table></figure>
+
+<p>作用：根据 <code>docker-compose.yml</code> 创建并启动其中定义的服务、网络和数据卷。</p>
+<p><code>-d</code> 表示后台运行。</p>
+<h3 id="2-停止并清理环境"><a href="#2-停止并清理环境" class="headerlink" title="2. 停止并清理环境"></a>2. 停止并清理环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose down</span><br></pre></td></tr></table></figure>
+
+<p>作用：停止并删除 Compose 创建的容器和网络，让环境回到干净状态。</p>
+<p>注意：默认情况下，<code>down</code> 不会删除具名数据卷。如果要连数据卷一起删除，需要额外使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose down -v</span><br></pre></td></tr></table></figure>
+
+<p>这会删除数据，执行前要确认。</p>
+<h3 id="3-一个简单的-Compose-示例"><a href="#3-一个简单的-Compose-示例" class="headerlink" title="3. 一个简单的 Compose 示例"></a>3. 一个简单的 Compose 示例</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">web:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8080:80&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">db:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">mysql:8.0</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">MYSQL_ROOT_PASSWORD:</span> <span class="number">123456</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">mysql_data:/var/lib/mysql</span></span><br><span class="line"></span><br><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="attr">mysql_data:</span></span><br></pre></td></tr></table></figure>
+
+<p>启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose up -d</span><br></pre></td></tr></table></figure>
+
+<p>停止：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose down</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十一、常用组合命令速查"><a href="#十一、常用组合命令速查" class="headerlink" title="十一、常用组合命令速查"></a>十一、常用组合命令速查</h2><h3 id="1-快速启动一个-Nginx"><a href="#1-快速启动一个-Nginx" class="headerlink" title="1. 快速启动一个 Nginx"></a>1. 快速启动一个 Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name web -p 8080:80 nginx</span><br></pre></td></tr></table></figure>
+
+<p>访问：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-启动一个带持久化数据的-MySQL"><a href="#2-启动一个带持久化数据的-MySQL" class="headerlink" title="2. 启动一个带持久化数据的 MySQL"></a>2. 启动一个带持久化数据的 MySQL</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker volume create mysql_data</span><br><span class="line"></span><br><span class="line">docker run -d \</span><br><span class="line">  --name mysql \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v mysql_data:/var/lib/mysql \</span><br><span class="line">  -p 3306:3306 \</span><br><span class="line">  mysql:8.0</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-临时进入-Ubuntu-容器"><a href="#3-临时进入-Ubuntu-容器" class="headerlink" title="3. 临时进入 Ubuntu 容器"></a>3. 临时进入 Ubuntu 容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> -it ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>退出容器后，容器会自动删除。</p>
+<h3 id="4-查看容器完整信息"><a href="#4-查看容器完整信息" class="headerlink" title="4. 查看容器完整信息"></a>4. 查看容器完整信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect web</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-清理停止的容器和孤儿卷"><a href="#5-清理停止的容器和孤儿卷" class="headerlink" title="5. 清理停止的容器和孤儿卷"></a>5. 清理停止的容器和孤儿卷</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker ps -a</span><br><span class="line">docker <span class="built_in">rm</span> &lt;container_id_or_name&gt;</span><br><span class="line">docker volume prune</span><br></pre></td></tr></table></figure>
+
+<p>清理数据卷前一定要确认没有重要数据。</p>
+<hr>
+<h2 id="十二、总结"><a href="#十二、总结" class="headerlink" title="十二、总结"></a>十二、总结</h2><p>Docker 常用命令可以按对象来记：</p>
+<ul>
+<li>镜像：拉取、查看、检查</li>
+<li>容器：创建、运行、停止、删除</li>
+<li>网络：端口映射、自定义网络、host 模式</li>
+<li>数据卷：创建、挂载、检查、清理</li>
+<li>Compose：把多个容器写进一个配置文件统一管理</li>
+</ul>
+<p>日常使用时，最常见的主线是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker pull 镜像</span><br><span class="line">docker run 参数 镜像</span><br><span class="line">docker ps -a</span><br><span class="line">docker inspect 容器</span><br><span class="line">docker stop 容器</span><br><span class="line">docker <span class="built_in">rm</span> 容器</span><br></pre></td></tr></table></figure>
+
+<p>真正需要长期保存的数据，不要只放在容器内部，而应该使用数据卷或绑定挂载。容器可以删，镜像可以重拉，但数据一旦误删，恢复成本往往最高。</p>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2026/06/03/Docker核心命令/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%88%E7%90%86%E8%A7%A3-Docker-%E7%9A%84%E5%87%A0%E4%B8%AA%E6%A0%B8%E5%BF%83%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.</span> <span class="toc-text">一、先理解 Docker 的几个核心对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%95%9C%E5%83%8F%E6%93%8D%E4%BD%9C%EF%BC%9AImage-Management"><span class="toc-number">2.</span> <span class="toc-text">二、镜像操作：Image Management</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F"><span class="toc-number">2.1.</span> <span class="toc-text">1. 拉取镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F"><span class="toc-number">2.2.</span> <span class="toc-text">2. 查看本地镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8B%E9%95%9C%E5%83%8F%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">2.3.</span> <span class="toc-text">3. 查看镜像详细信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%B9%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86%EF%BC%9AContainer-Lifecycle"><span class="toc-number">3.</span> <span class="toc-text">三、容器生命周期管理：Container Lifecycle</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E4%BD%86%E4%B8%8D%E5%90%AF%E5%8A%A8"><span class="toc-number">3.1.</span> <span class="toc-text">1. 创建容器但不启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E5%B9%B6%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">2. 创建并启动容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%90%AF%E5%8A%A8%E5%B7%B2%E5%81%9C%E6%AD%A2%E7%9A%84%E5%AE%B9%E5%99%A8"><span class="toc-number">3.3.</span> <span class="toc-text">3. 启动已停止的容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BC%98%E9%9B%85%E5%81%9C%E6%AD%A2%E5%AE%B9%E5%99%A8"><span class="toc-number">3.4.</span> <span class="toc-text">4. 优雅停止容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4%E5%AE%B9%E5%99%A8"><span class="toc-number">3.5.</span> <span class="toc-text">5. 强制删除容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E5%88%97%E8%A1%A8"><span class="toc-number">3.6.</span> <span class="toc-text">6. 查看容器列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81docker-run-%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0"><span class="toc-number">4.</span> <span class="toc-text">四、docker run 核心参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-d%EF%BC%9A%E5%90%8E%E5%8F%B0%E8%BF%90%E8%A1%8C"><span class="toc-number">4.1.</span> <span class="toc-text">1. -d：后台运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-p%EF%BC%9A%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84"><span class="toc-number">4.2.</span> <span class="toc-text">2. -p：端口映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-v%EF%BC%9A%E6%8C%82%E8%BD%BD%E7%9B%AE%E5%BD%95%E6%88%96%E6%95%B0%E6%8D%AE%E5%8D%B7"><span class="toc-number">4.3.</span> <span class="toc-text">3. -v：挂载目录或数据卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-e%EF%BC%9A%E8%AE%BE%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.4.</span> <span class="toc-text">4. -e：设置环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-it%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E7%BB%88%E7%AB%AF"><span class="toc-number">4.5.</span> <span class="toc-text">5. -it：交互式终端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-rm%EF%BC%9A%E9%80%80%E5%87%BA%E5%90%8E%E8%87%AA%E5%8A%A8%E5%88%A0%E9%99%A4"><span class="toc-number">4.6.</span> <span class="toc-text">6. --rm：退出后自动删除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-name%EF%BC%9A%E6%8C%87%E5%AE%9A%E5%AE%B9%E5%99%A8%E5%90%8D%E7%A7%B0"><span class="toc-number">4.7.</span> <span class="toc-text">7. --name：指定容器名称</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81inspect%EF%BC%9A%E6%9F%A5%E7%9C%8B%E5%AF%B9%E8%B1%A1%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">5.</span> <span class="toc-text">五、inspect：查看对象详细信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">5.1.</span> <span class="toc-text">1. 查看容器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E9%95%9C%E5%83%8F%E4%BF%A1%E6%81%AF"><span class="toc-number">5.2.</span> <span class="toc-text">2. 查看镜像信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%8D%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">5.3.</span> <span class="toc-text">3. 查看数据卷信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF"><span class="toc-number">5.4.</span> <span class="toc-text">4. 查看网络信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%EF%BC%9ANetwork-Management"><span class="toc-number">6.</span> <span class="toc-text">六、网络管理：Network Management</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BD%91%E7%BB%9C"><span class="toc-number">6.1.</span> <span class="toc-text">1. 创建自定义网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-host-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.2.</span> <span class="toc-text">2. host 网络模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%95%B0%E6%8D%AE%E5%8D%B7%E7%AE%A1%E7%90%86%EF%BC%9AVolume-Management"><span class="toc-number">7.</span> <span class="toc-text">七、数据卷管理：Volume Management</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%8D%B7"><span class="toc-number">7.1.</span> <span class="toc-text">1. 创建数据卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%8D%B7%E5%88%97%E8%A1%A8"><span class="toc-number">7.2.</span> <span class="toc-text">2. 查看数据卷列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%8D%B7%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">7.3.</span> <span class="toc-text">3. 查看数据卷详细信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%8D%B7"><span class="toc-number">7.4.</span> <span class="toc-text">4. 删除数据卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B8%85%E7%90%86%E5%AD%A4%E5%84%BF%E6%95%B0%E6%8D%AE%E5%8D%B7"><span class="toc-number">7.5.</span> <span class="toc-text">5. 清理孤儿数据卷</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E4%B8%A4%E7%A7%8D%E6%8C%82%E8%BD%BD%E6%96%B9%E5%BC%8F%EF%BC%9AVolume-%E4%B8%8E-Bind-Mount"><span class="toc-number">8.</span> <span class="toc-text">八、两种挂载方式：Volume 与 Bind Mount</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B7%E5%90%8D-%E5%8C%BF%E5%90%8D%E6%95%B0%E6%8D%AE%E5%8D%B7%EF%BC%9A%E7%94%B1-Docker-%E7%AE%A1%E7%90%86"><span class="toc-number">8.1.</span> <span class="toc-text">1. 具名&#x2F;匿名数据卷：由 Docker 管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BB%91%E5%AE%9A%E6%8C%82%E8%BD%BD%EF%BC%9A%E7%94%B1%E7%94%A8%E6%88%B7%E6%8E%A7%E5%88%B6%E8%B7%AF%E5%BE%84"><span class="toc-number">8.2.</span> <span class="toc-text">2. 绑定挂载：由用户控制路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%AA%E8%AF%BB%E6%8C%82%E8%BD%BD%EF%BC%9A-ro"><span class="toc-number">9.</span> <span class="toc-text">九、只读挂载：:ro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81Docker-Compose%EF%BC%9A%E5%A4%9A%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92"><span class="toc-number">10.</span> <span class="toc-text">十、Docker Compose：多容器编排</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%90%AF%E5%8A%A8%E6%89%80%E6%9C%89%E6%9C%8D%E5%8A%A1"><span class="toc-number">10.1.</span> <span class="toc-text">1. 启动所有服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%81%9C%E6%AD%A2%E5%B9%B6%E6%B8%85%E7%90%86%E7%8E%AF%E5%A2%83"><span class="toc-number">10.2.</span> <span class="toc-text">2. 停止并清理环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84-Compose-%E7%A4%BA%E4%BE%8B"><span class="toc-number">10.3.</span> <span class="toc-text">3. 一个简单的 Compose 示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E5%B8%B8%E7%94%A8%E7%BB%84%E5%90%88%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="toc-number">11.</span> <span class="toc-text">十一、常用组合命令速查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%BF%AB%E9%80%9F%E5%90%AF%E5%8A%A8%E4%B8%80%E4%B8%AA-Nginx"><span class="toc-number">11.1.</span> <span class="toc-text">1. 快速启动一个 Nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%90%AF%E5%8A%A8%E4%B8%80%E4%B8%AA%E5%B8%A6%E6%8C%81%E4%B9%85%E5%8C%96%E6%95%B0%E6%8D%AE%E7%9A%84-MySQL"><span class="toc-number">11.2.</span> <span class="toc-text">2. 启动一个带持久化数据的 MySQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%B8%B4%E6%97%B6%E8%BF%9B%E5%85%A5-Ubuntu-%E5%AE%B9%E5%99%A8"><span class="toc-number">11.3.</span> <span class="toc-text">3. 临时进入 Ubuntu 容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E5%AE%8C%E6%95%B4%E4%BF%A1%E6%81%AF"><span class="toc-number">11.4.</span> <span class="toc-text">4. 查看容器完整信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B8%85%E7%90%86%E5%81%9C%E6%AD%A2%E7%9A%84%E5%AE%B9%E5%99%A8%E5%92%8C%E5%AD%A4%E5%84%BF%E5%8D%B7"><span class="toc-number">11.5.</span> <span class="toc-text">5. 清理停止的容器和孤儿卷</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">12.</span> <span class="toc-text">十二、总结</span></a></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2026/05/26/Basic-English-18-基本动词组合表达词典/">C. K. Ogden Basic English 18 个基本动词组合表达词典</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2026/06/03/Docker核心命令/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const links = tocs ? tocs.querySelectorAll('a') : []
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        const href = decodeURIComponent(e.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+       
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index">2</a> </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const operateDom = document.querySelector('.main-right .operate-items')
+    const commentDom = document.querySelector('.turn-comment')
+    const cateloguDom = document.querySelector('.article-catelogue > .article-catelogue--wrapper');
+
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+        const newDom = operateDom.cloneNode(true);
+        const _backtopDom = newDom.querySelector('.backtop');
+        const _commentDom = newDom.querySelector('.turn-comment');
+        _backtopDom.addEventListener('click', () => backTopEvent());
+        _commentDom.addEventListener('click', () => commentDomEvent());
+        cateloguDom.appendChild(newDom);
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡布达","artist":"暂无","url":"music/kabuda.mp3","cover":"https://img2.baidu.com/it/u=705831265,2862720033&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    backTopEvent();
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    commentDomEvent();
+  })
+
+  function backTopEvent() {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  function commentDomEvent() {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  }
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+  <div id="gray" class="gray"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+    const rootPath = "/"
+
+    const checkAndSetArticlePageLayout = () => {
+      const path = location.pathname.replace(rootPath, '');
+      if (
+        /^\/?\d{4}\/\d{2}\/\d{2}\/.*/.test(path) ||
+        /^log\/.+/.test(path)
+      ) {
+        $('.main-container, .main-right, .main-right-wrapper').addClass('is-article')
+      } else {
+        $('.main-container, .main-right, .main-right-wrapper').removeClass('is-article')
+      }
+    }
+
+    const gray = "none"
+    const setGrayStyle = () => {
+      if (gray === 'none') {
+        return
+      } else if (gray === 'index') {
+        location.pathname === '/' ? $('#gray').show() : $('#gray').hide()
+      } else if (gray === 'all') {
+        $('#gray').show()
+      }
+    }
+    setGrayStyle()
+
+
+    window.onload = function () {
+      checkAndSetArticlePageLayout()
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll();
+        }, 500)
+      }, 500)
+    }
+    
+    let status = 0
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {
+      container: '#main-container',
+      fragment: '#main-container',
+      timeout: 8000
+    })
+
+    $(document).on('pjax:start', function() {
+    })
+    $(document).on('pjax:complete', function() {
+      status = 0
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+      setGrayStyle()
+      checkAndSetArticlePageLayout()
+    })
+    $(document).on('pjax:popstate', function() {
+      status = -1
+      checkAndSetArticlePageLayout()
+    });
+  </script>
+</body>
+</html>
