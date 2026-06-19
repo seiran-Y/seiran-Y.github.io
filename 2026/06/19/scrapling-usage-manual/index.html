@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>我的技术与生活——Scrapling 0.4.9 API 使用手册 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/public.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/iconfont.css" />
+  <link rel="stylesheet" href="/css/APlayer.min.css" />
+  <script src="/js/APlayer.min.js"></script>
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/jquery.pjax.min.js"></script>
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `我的技术与生活——Scrapling 0.4.9 API 使用手册`
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  .gray {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+    display: none;
+    pointer-events: none;
+    background-color: #000;
+    mix-blend-mode: color;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="http://example.com/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="http://example.com/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"C. K. Ogden Basic English 18 个基本动词组合表达词典","path":"2026/05/26/Basic-English-18-基本动词组合表达词典/"},{"title":"C. K. Ogden Basic English 850 基础词词典","path":"2026/05/26/Basic-English-850-基础词词典/"},{"title":"Git 常用命令速查","path":"2026/05/12/Git常用命令速查/"},{"title":"Docker 核心命令","path":"2026/06/03/Docker核心命令/"},{"title":"Git 分支命名与提交规范","path":"2026/06/03/Git分支命名与提交规范/"},{"title":"博客搭建","path":"2025/11/02/博客搭建/"},{"title":"Scrapling 0.4.9 API 使用手册","path":"2026/06/19/scrapling-usage-manual/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Seiran</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">中二</span>
+          <span class="main-left--tag">宅</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>いもうと</p>
+        <p>さいこ</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a target="_blank" rel="noopener" href="https://github.com/seiran-Y"><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>2</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>14</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>3 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/link">
+            <span class="header-menu--span">友情链接</span>
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>7 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>278天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v0.0.0</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <link rel="stylesheet" href="/css/partial/article.css" />
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">Scrapling 0.4.9 API 使用手册</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            
+          </div>
+          
+          <p class="article-info--date">日期：2026-06-19 14:55:06</p>
+        </div>
+        <img src="/imgs/default-cover.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content markdown-body">
+      <h1 id="Scrapling-0-4-9-API-使用手册"><a href="#Scrapling-0-4-9-API-使用手册" class="headerlink" title="Scrapling 0.4.9 API 使用手册"></a>Scrapling 0.4.9 API 使用手册</h1><p>本文档基于当前项目中的 <code>scrapling</code> 源码版本 <code>0.4.9</code> 编写，面向需要在 Python 项目中使用 Scrapling 进行网页解析、HTTP 抓取、浏览器抓取、反检测抓取、Spider 爬虫、CLI 与 MCP 集成的开发者。</p>
+<p>示例默认使用公开演示站点 <code>https://quotes.toscrape.com/</code> 或 <code>https://example.com/</code>。实际抓取前请确认目标网站的 robots.txt、服务条款、访问频率限制和数据合规要求。</p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-%E9%A1%B9%E7%9B%AE%E7%AE%80%E4%BB%8B%E4%B8%8E%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF">项目简介与适用场景</a></li>
+<li><a href="#2-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BE%9D%E8%B5%96">安装与依赖</a></li>
+<li><a href="#3-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B">快速开始</a></li>
+<li><a href="#4-html-%E8%A7%A3%E6%9E%90%E4%B8%8E%E9%80%89%E6%8B%A9%E5%99%A8-api">HTML 解析与选择器 API</a></li>
+<li><a href="#5-http-%E6%8A%93%E5%8F%96fetcher--asyncfetcher--fetchersession">HTTP 抓取：Fetcher &#x2F; AsyncFetcher &#x2F; FetcherSession</a></li>
+<li><a href="#6-%E5%8A%A8%E6%80%81%E9%A1%B5%E9%9D%A2%E6%8A%93%E5%8F%96dynamicfetcher--dynamicsession--asyncdynamicsession">动态页面抓取：DynamicFetcher &#x2F; DynamicSession &#x2F; AsyncDynamicSession</a></li>
+<li><a href="#7-%E5%8F%8D%E6%A3%80%E6%B5%8B%E6%8A%93%E5%8F%96stealthyfetcher--stealthysession--asyncstealthysession">反检测抓取：StealthyFetcher &#x2F; StealthySession &#x2F; AsyncStealthySession</a></li>
+<li><a href="#8-%E4%BB%A3%E7%90%86%E4%BB%A3%E7%90%86%E8%BD%AE%E6%8D%A2dns-%E4%B8%8E%E8%B5%84%E6%BA%90%E6%8B%A6%E6%88%AA">代理、代理轮换、DNS 与资源拦截</a></li>
+<li><a href="#9-spider-%E7%88%AC%E8%99%AB%E6%A1%86%E6%9E%B6">Spider 爬虫框架</a></li>
+<li><a href="#10-%E9%80%9A%E7%94%A8%E7%88%AC%E8%99%AB%E6%A8%A1%E6%9D%BFcrawlspider--sitemapspider">通用爬虫模板：CrawlSpider &#x2F; SitemapSpider</a></li>
+<li><a href="#11-cli-%E4%B8%8E%E4%BA%A4%E4%BA%92%E5%BC%8F-shell">CLI 与交互式 Shell</a></li>
+<li><a href="#12-mcp--ai-%E9%9B%86%E6%88%90">MCP &#x2F; AI 集成</a></li>
+<li><a href="#13-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%B0%83%E8%AF%95%E5%BB%BA%E8%AE%AE%E5%90%88%E8%A7%84%E6%8F%90%E9%86%92">常见问题、调试建议、合规提醒</a></li>
+</ol>
+<h2 id="1-项目简介与适用场景"><a href="#1-项目简介与适用场景" class="headerlink" title="1. 项目简介与适用场景"></a>1. 项目简介与适用场景</h2><h3 id="功能定位"><a href="#功能定位" class="headerlink" title="功能定位"></a>功能定位</h3><p>Scrapling 是一个 Python 网页抓取与解析库。它把 HTML 解析器、HTTP 客户端、Playwright 浏览器抓取、反检测浏览器会话和异步 Spider 框架放在同一套接口中。</p>
+<p>常见使用场景：</p>
+<ul>
+<li>静态网页抓取：用 <code>Fetcher</code> 发送 HTTP 请求并直接得到可选择的 <code>Response</code>。</li>
+<li>HTML 解析：用 <code>Selector</code> 对字符串 HTML 执行 CSS、XPath、文本、正则、相似元素查找。</li>
+<li>动态网页抓取：用 <code>DynamicFetcher</code> 打开 Chromium 等待页面渲染后提取 DOM。</li>
+<li>反检测抓取：用 <code>StealthyFetcher</code> 在更接近真实浏览器的环境中访问页面。</li>
+<li>中大型爬虫：用 <code>Spider</code>、<code>CrawlSpider</code>、<code>SitemapSpider</code> 管理请求队列、并发、去重、暂停恢复、结果导出。</li>
+<li>命令行提取：用 <code>scrapling extract ...</code> 把网页内容保存为 HTML、Markdown 或纯文本。</li>
+<li>AI&#x2F;MCP 工具调用：用 <code>scrapling mcp</code> 启动 MCP 服务，让支持 MCP 的客户端调用抓取能力。</li>
+</ul>
+<h3 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> quote <span class="keyword">in</span> page.css(<span class="string">&quot;.quote&quot;</span>):</span><br><span class="line">    <span class="built_in">print</span>(quote.css(<span class="string">&quot;.text::text&quot;</span>).get())</span><br><span class="line">    <span class="built_in">print</span>(quote.css(<span class="string">&quot;.author::text&quot;</span>).get())</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法"><a href="#扩展用法" class="headerlink" title="扩展用法"></a>扩展用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>,</span><br><span class="line">    wait_selector=<span class="string">&quot;.quote&quot;</span>,</span><br><span class="line">    headless=<span class="literal">True</span>,</span><br><span class="line">    network_idle=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">titles = page.css(<span class="string">&quot;.quote .text::text&quot;</span>).getall()</span><br><span class="line"><span class="built_in">print</span>(titles)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h3><ul>
+<li><code>selector_config</code>：传给最终 <code>Selector</code> &#x2F; <code>Response</code> 的解析配置，例如 adaptive scraping 配置。</li>
+<li><code>headers</code> &#x2F; <code>extra_headers</code>：HTTP fetcher 使用 <code>headers</code>，浏览器 fetcher 使用 <code>extra_headers</code>。</li>
+<li><code>proxy</code> &#x2F; <code>proxy_rotator</code>：静态代理或代理轮换。</li>
+<li><code>timeout</code>：HTTP fetcher 单位是秒，浏览器 fetcher 单位是毫秒。</li>
+<li><code>retries</code> &#x2F; <code>retry_delay</code>：失败重试次数和间隔。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法"><a href="#返回对象-可继续调用的方法" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>所有 fetcher 返回的主要对象都是 <code>Response</code>。<code>Response</code> 继承 <code>Selector</code>，因此响应对象既有 HTTP 信息，也能直接 <code>.css()</code>、<code>.xpath()</code>、<code>.find()</code>。</p>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>想用少量代码完成“请求 + 解析”。</li>
+<li>需要在静态请求、浏览器请求、反检测请求之间切换。</li>
+<li>需要把单页抓取逐步升级为完整 Spider。</li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>浏览器相关功能依赖 Playwright &#x2F; Patchright 浏览器环境，安装后通常需要运行 <code>scrapling install</code>。</li>
+<li>不要用反检测功能绕过登录、付费墙、验证码或访问控制。</li>
+<li>生产环境应设置超时、重试、限速、代理失败处理和日志。</li>
+</ul>
+<h2 id="2-安装与依赖"><a href="#2-安装与依赖" class="headerlink" title="2. 安装与依赖"></a>2. 安装与依赖</h2><h3 id="功能定位-1"><a href="#功能定位-1" class="headerlink" title="功能定位"></a>功能定位</h3><p>Scrapling 使用 extras 区分不同功能依赖。只解析 HTML 时依赖较少；使用 HTTP fetcher、浏览器 fetcher、Shell、MCP 时需要安装额外依赖。</p>
+<h3 id="基础用法-1"><a href="#基础用法-1" class="headerlink" title="基础用法"></a>基础用法</h3><p>仅使用解析器：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install scrapling</span><br></pre></td></tr></table></figure>
+
+<p>使用 fetchers 和 spiders：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;scrapling[fetchers]&quot;</span></span><br><span class="line">scrapling install</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-1"><a href="#扩展用法-1" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>安装 Shell &#x2F; CLI 相关依赖：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;scrapling[shell]&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>安装 MCP &#x2F; AI 相关依赖：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;scrapling[ai]&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>安装全部功能：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;scrapling[all]&quot;</span></span><br><span class="line">scrapling install</span><br></pre></td></tr></table></figure>
+
+<p>使用 Docker 镜像：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull pyd4vinci/scrapling</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-1"><a href="#常用参数-1" class="headerlink" title="常用参数"></a>常用参数</h3><ul>
+<li><code>scrapling install</code>：安装 Chromium、Playwright 运行依赖，并更新 TLD 数据。</li>
+<li><code>scrapling install --force</code>：强制重新安装 fetcher 依赖。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-1"><a href="#返回对象-可继续调用的方法-1" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>安装命令不返回 Python 对象。Python 包安装成功后可从以下入口导入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector, Fetcher, AsyncFetcher, DynamicFetcher, StealthyFetcher</span><br><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> FetcherSession, DynamicSession, AsyncDynamicSession</span><br><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> StealthySession, AsyncStealthySession, ProxyRotator</span><br><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider, Request, CrawlSpider, CrawlRule, SitemapSpider</span><br></pre></td></tr></table></figure>
+
+<h3 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>最小化依赖：只装 <code>scrapling</code>。</li>
+<li>本地抓取开发：装 <code>scrapling[fetchers]</code>。</li>
+<li>命令行内容提取：装 <code>scrapling[shell]</code>。</li>
+<li>AI 工具调用：装 <code>scrapling[ai]</code>。</li>
+<li>不想处理系统浏览器依赖：优先考虑 Docker 镜像。</li>
+</ul>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>当前项目已经包含 <code>scrapling/</code> 源码目录，运行时会优先使用本地源码。</li>
+<li>Windows 下若浏览器 fetcher 缺依赖，先执行 <code>scrapling install</code>。</li>
+<li>如果 CLI 命令不可用，通常是 extras 没装完整，或入口脚本不在当前虚拟环境 PATH 中。</li>
+</ul>
+<h2 id="3-快速开始"><a href="#3-快速开始" class="headerlink" title="3. 快速开始"></a>3. 快速开始</h2><h3 id="功能定位-2"><a href="#功能定位-2" class="headerlink" title="功能定位"></a>功能定位</h3><p>本节给出从抓取到解析的最短路径，帮助确认安装和基本 API 可用。</p>
+<h3 id="基础用法-2"><a href="#基础用法-2" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>)</span><br><span class="line"></span><br><span class="line">quotes = []</span><br><span class="line"><span class="keyword">for</span> card <span class="keyword">in</span> page.css(<span class="string">&quot;.quote&quot;</span>):</span><br><span class="line">    quotes.append(</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;text&quot;</span>: card.css(<span class="string">&quot;.text::text&quot;</span>).get(),</span><br><span class="line">            <span class="string">&quot;author&quot;</span>: card.css(<span class="string">&quot;.author::text&quot;</span>).get(),</span><br><span class="line">            <span class="string">&quot;tags&quot;</span>: card.css(<span class="string">&quot;.tags .tag::text&quot;</span>).getall(),</span><br><span class="line">        &#125;</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(quotes)</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-2"><a href="#扩展用法-2" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>遇到 JavaScript 渲染页面时切换到浏览器 fetcher：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>,</span><br><span class="line">    wait_selector=<span class="string">&quot;.quote&quot;</span>,</span><br><span class="line">    timeout=<span class="number">30000</span>,</span><br><span class="line">    headless=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.quote .text::text&quot;</span>).getall())</span><br></pre></td></tr></table></figure>
+
+<p>异步批量请求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> AsyncFetcher</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    urls = [</span><br><span class="line">        <span class="string">&quot;https://quotes.toscrape.com/page/1/&quot;</span>,</span><br><span class="line">        <span class="string">&quot;https://quotes.toscrape.com/page/2/&quot;</span>,</span><br><span class="line">    ]</span><br><span class="line">    pages = <span class="keyword">await</span> asyncio.gather(*(AsyncFetcher.get(url) <span class="keyword">for</span> url <span class="keyword">in</span> urls))</span><br><span class="line">    <span class="keyword">for</span> page <span class="keyword">in</span> pages:</span><br><span class="line">        <span class="built_in">print</span>(page.url, <span class="built_in">len</span>(page.css(<span class="string">&quot;.quote&quot;</span>)))</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-2"><a href="#常用参数-2" class="headerlink" title="常用参数"></a>常用参数</h3><ul>
+<li>静态页面：优先 <code>Fetcher.get()</code>。</li>
+<li>多请求并发：优先 <code>AsyncFetcher</code> 或 <code>Spider</code>。</li>
+<li>JavaScript 渲染：优先 <code>DynamicFetcher.fetch()</code>。</li>
+<li>风控更严格页面：在合法前提下考虑 <code>StealthyFetcher.fetch()</code>。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-2"><a href="#返回对象-可继续调用的方法-2" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(page.status)</span><br><span class="line"><span class="built_in">print</span>(page.url)</span><br><span class="line"><span class="built_in">print</span>(page.headers)</span><br><span class="line"><span class="built_in">print</span>(page.body)</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;title::text&quot;</span>).get())</span><br></pre></td></tr></table></figure>
+
+<h3 id="适用场景-2"><a href="#适用场景-2" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>快速验证 CSS&#x2F;XPath 是否正确。</li>
+<li>编写小脚本一次性提取页面。</li>
+<li>从单页脚本逐渐演进到 Spider。</li>
+</ul>
+<h3 id="注意事项-2"><a href="#注意事项-2" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>Fetcher</code> 请求不执行 JavaScript。</li>
+<li><code>DynamicFetcher</code> 和 <code>StealthyFetcher</code> 会启动浏览器，速度和资源占用明显高于 HTTP 请求。</li>
+<li>示例站点可用于学习，不代表目标站点允许高频抓取。</li>
+</ul>
+<h2 id="4-HTML-解析与选择器-API"><a href="#4-HTML-解析与选择器-API" class="headerlink" title="4. HTML 解析与选择器 API"></a>4. HTML 解析与选择器 API</h2><h3 id="功能定位-3"><a href="#功能定位-3" class="headerlink" title="功能定位"></a>功能定位</h3><p><code>Selector</code> 是 Scrapling 的 HTML 解析入口，<code>Response</code> 继承自 <code>Selector</code>。它支持 CSS、XPath、BeautifulSoup 风格查找、文本&#x2F;正则提取、DOM 遍历、相似元素查找和 adaptive scraping。</p>
+<h3 id="基础用法-3"><a href="#基础用法-3" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">html = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">&lt;html&gt;</span></span><br><span class="line"><span class="string">  &lt;body&gt;</span></span><br><span class="line"><span class="string">    &lt;article class=&quot;product&quot; data-id=&quot;sku-1&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;h2&gt;Keyboard&lt;/h2&gt;</span></span><br><span class="line"><span class="string">      &lt;span class=&quot;price&quot;&gt;$99&lt;/span&gt;</span></span><br><span class="line"><span class="string">      &lt;a href=&quot;/products/keyboard&quot;&gt;Detail&lt;/a&gt;</span></span><br><span class="line"><span class="string">    &lt;/article&gt;</span></span><br><span class="line"><span class="string">  &lt;/body&gt;</span></span><br><span class="line"><span class="string">&lt;/html&gt;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">page = Selector(html)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;h2::text&quot;</span>).get())</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.price::text&quot;</span>).get())</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;article::attr(data-id)&quot;</span>).get())</span><br><span class="line"><span class="built_in">print</span>(page.xpath(<span class="string">&quot;//a/@href&quot;</span>).get())</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-3"><a href="#扩展用法-3" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>BeautifulSoup 风格查找：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">page = Selector(<span class="string">&quot;&lt;div&gt;&lt;a class=&#x27;nav item&#x27; href=&#x27;/docs&#x27;&gt;Docs&lt;/a&gt;&lt;/div&gt;&quot;</span>)</span><br><span class="line"></span><br><span class="line">link = page.find(<span class="string">&quot;a&quot;</span>, class_=<span class="string">&quot;nav&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(link.text)</span><br><span class="line"><span class="built_in">print</span>(link.attrib[<span class="string">&quot;href&quot;</span>])</span><br><span class="line"></span><br><span class="line">all_links = page.find_all(<span class="string">&quot;a&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(all_links.getall())</span><br></pre></td></tr></table></figure>
+
+<p>文本和正则查找：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">page = Selector(<span class="string">&quot;&lt;p&gt;Order ID: A-1024&lt;/p&gt;&lt;p&gt;Status: paid&lt;/p&gt;&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.find_by_text(<span class="string">&quot;Status&quot;</span>, partial=<span class="literal">True</span>).text)</span><br><span class="line"><span class="built_in">print</span>(page.find_by_regex(<span class="string">r&quot;Order ID:\s+([A-Z]-\d+)&quot;</span>).text)</span><br><span class="line"><span class="built_in">print</span>(page.re_first(<span class="string">r&quot;Order ID:\s+([A-Z]-\d+)&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>DOM 遍历：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">page = Selector(<span class="string">&quot;&lt;ul&gt;&lt;li&gt;A&lt;/li&gt;&lt;li class=&#x27;active&#x27;&gt;B&lt;/li&gt;&lt;li&gt;C&lt;/li&gt;&lt;/ul&gt;&quot;</span>)</span><br><span class="line">current = page.css(<span class="string">&quot;li.active&quot;</span>).first</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(current.parent.tag)</span><br><span class="line"><span class="built_in">print</span>(current.previous.text)</span><br><span class="line"><span class="built_in">print</span>(current.<span class="built_in">next</span>.text)</span><br><span class="line"><span class="built_in">print</span>([child.text <span class="keyword">for</span> child <span class="keyword">in</span> current.parent.children])</span><br></pre></td></tr></table></figure>
+
+<p>adaptive scraping：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Selector</span><br><span class="line"></span><br><span class="line">page = Selector(html, adaptive=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">title = page.css(<span class="string">&quot;article.product h2&quot;</span>, identifier=<span class="string">&quot;product-title&quot;</span>, auto_save=<span class="literal">True</span>).get()</span><br><span class="line"></span><br><span class="line">new_page = Selector(changed_html, adaptive=<span class="literal">True</span>)</span><br><span class="line">title_again = new_page.css(<span class="string">&quot;article.product h2&quot;</span>, identifier=<span class="string">&quot;product-title&quot;</span>, adaptive=<span class="literal">True</span>).get()</span><br><span class="line"><span class="built_in">print</span>(title, title_again)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-3"><a href="#常用参数-3" class="headerlink" title="常用参数"></a>常用参数</h3><p><code>Selector(content, url=&quot;&quot;, encoding=&quot;utf-8&quot;, huge_tree=True, adaptive=False, storage=SQLiteStorageSystem, keep_cdata=False, storage_args=None, keep_comments=False, adaptive_domain=&quot;&quot;)</code></p>
+<ul>
+<li><code>content</code>：HTML 字符串或字节。</li>
+<li><code>url</code>：当前页面 URL，用于 <code>urljoin()</code> 和相对链接处理。</li>
+<li><code>encoding</code>：文本编码。</li>
+<li><code>huge_tree</code>：允许解析更大的 HTML 树。</li>
+<li><code>adaptive</code>：启用自适应选择器定位。</li>
+<li><code>storage</code> &#x2F; <code>storage_args</code>：adaptive scraping 的存储后端和参数。</li>
+<li><code>keep_cdata</code> &#x2F; <code>keep_comments</code>：是否保留 CDATA 和注释。</li>
+</ul>
+<p>选择器方法：</p>
+<ul>
+<li><code>.css(selector, identifier=&quot;&quot;, adaptive=False, auto_save=False, percentage=40)</code></li>
+<li><code>.xpath(selector, identifier=&quot;&quot;, adaptive=False, auto_save=False, percentage=40, **kwargs)</code></li>
+<li><code>.find(*args, **kwargs)</code></li>
+<li><code>.find_all(*args, **kwargs)</code></li>
+<li><code>.find_by_text(text, first_match=True, partial=False, case_sensitive=False, clean_match=True)</code></li>
+<li><code>.find_by_regex(query, first_match=True, case_sensitive=False, clean_match=True)</code></li>
+<li><code>.find_similar(similarity_threshold=0.2, ignore_attributes=(&quot;href&quot;, &quot;src&quot;), match_text=False)</code></li>
+<li><code>.re(regex, replace_entities=True, clean_match=False, case_sensitive=True)</code></li>
+<li><code>.re_first(regex, default=None, replace_entities=True, clean_match=False, case_sensitive=True)</code></li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-3"><a href="#返回对象-可继续调用的方法-3" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p><code>.css()</code>、<code>.xpath()</code>、<code>.find_all()</code> 通常返回 <code>Selectors</code>，它是 <code>list[Selector]</code> 的增强版：</p>
+<ul>
+<li><code>.get(default=None)</code>：取第一个匹配的 HTML&#x2F;text。</li>
+<li><code>.getall()</code>：取所有匹配结果。</li>
+<li><code>.first</code> &#x2F; <code>.last</code>：取第一个或最后一个 <code>Selector</code>。</li>
+<li><code>.length</code>：匹配数量。</li>
+<li><code>.filter(func)</code> &#x2F; <code>.search(func)</code>：按函数过滤或搜索。</li>
+<li><code>.css()</code> &#x2F; <code>.xpath()</code> &#x2F; <code>.re()</code> &#x2F; <code>.re_first()</code>：继续链式提取。</li>
+</ul>
+<p>单个 <code>Selector</code> 常用属性和方法：</p>
+<ul>
+<li><code>.tag</code>：标签名。</li>
+<li><code>.text</code>：当前元素清理后的文本。</li>
+<li><code>.get_all_text(separator=&quot;\n&quot;, strip=False, ignore_tags=(&quot;script&quot;, &quot;style&quot;), valid_values=True)</code>：提取完整文本。</li>
+<li><code>.attrib</code>：属性映射。</li>
+<li><code>.html_content</code>：内部 HTML。</li>
+<li><code>.body</code>：原始 body。</li>
+<li><code>.prettify()</code>：格式化 HTML。</li>
+<li><code>.urljoin(relative_url)</code>：拼接相对 URL。</li>
+<li><code>.json()</code>：把当前内容按 JSON 解析。</li>
+</ul>
+<h3 id="适用场景-3"><a href="#适用场景-3" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>从已有 HTML 字符串中提取结构化数据。</li>
+<li>从 <code>Fetcher</code> &#x2F; <code>DynamicFetcher</code> 返回的 <code>Response</code> 继续解析。</li>
+<li>页面结构可能小幅变化时，用 adaptive scraping 增加选择器韧性。</li>
+</ul>
+<h3 id="注意事项-3"><a href="#注意事项-3" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>::text</code> 和 <code>::attr(...)</code> 是 CSS 选择器的提取扩展，适合直接取文本或属性。</li>
+<li><code>.text</code> 是元素文本；<code>.get()</code> 取决于当前选择器是否是文本&#x2F;属性结果。</li>
+<li>adaptive scraping 需要稳定的 <code>identifier</code>，否则无法复用保存过的定位信息。</li>
+<li>相似元素查找是启发式能力，不适合作为强一致业务逻辑的唯一依据。</li>
+</ul>
+<h2 id="5-HTTP-抓取：Fetcher-AsyncFetcher-FetcherSession"><a href="#5-HTTP-抓取：Fetcher-AsyncFetcher-FetcherSession" class="headerlink" title="5. HTTP 抓取：Fetcher &#x2F; AsyncFetcher &#x2F; FetcherSession"></a>5. HTTP 抓取：Fetcher &#x2F; AsyncFetcher &#x2F; FetcherSession</h2><h3 id="功能定位-4"><a href="#功能定位-4" class="headerlink" title="功能定位"></a>功能定位</h3><p>HTTP fetcher 基于 <code>curl_cffi</code>，适合抓取不依赖 JavaScript 渲染的网页或接口。它支持同步、异步、会话复用、浏览器指纹模拟、HTTP3、代理、重试和安全重定向策略。</p>
+<h3 id="基础用法-4"><a href="#基础用法-4" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(</span><br><span class="line">    <span class="string">&quot;https://quotes.toscrape.com/&quot;</span>,</span><br><span class="line">    headers=&#123;<span class="string">&quot;Accept-Language&quot;</span>: <span class="string">&quot;en-US,en;q=0.9&quot;</span>&#125;,</span><br><span class="line">    timeout=<span class="number">30</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.quote .text::text&quot;</span>).getall())</span><br></pre></td></tr></table></figure>
+
+<p>POST &#x2F; PUT &#x2F; DELETE：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">response = Fetcher.post(</span><br><span class="line">    <span class="string">&quot;https://example.com/api/search&quot;</span>,</span><br><span class="line">    json=&#123;<span class="string">&quot;keyword&quot;</span>: <span class="string">&quot;scrapling&quot;</span>&#125;,</span><br><span class="line">    headers=&#123;<span class="string">&quot;Accept&quot;</span>: <span class="string">&quot;application/json&quot;</span>&#125;,</span><br><span class="line">    timeout=<span class="number">30</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.status)</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-4"><a href="#扩展用法-4" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>异步请求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> AsyncFetcher</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    pages = <span class="keyword">await</span> asyncio.gather(</span><br><span class="line">        AsyncFetcher.get(<span class="string">&quot;https://quotes.toscrape.com/page/1/&quot;</span>),</span><br><span class="line">        AsyncFetcher.get(<span class="string">&quot;https://quotes.toscrape.com/page/2/&quot;</span>),</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">for</span> page <span class="keyword">in</span> pages:</span><br><span class="line">        <span class="built_in">print</span>(page.url, page.status)</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<p>同步会话复用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> FetcherSession</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> FetcherSession(headers=&#123;<span class="string">&quot;Accept-Language&quot;</span>: <span class="string">&quot;en-US&quot;</span>&#125;) <span class="keyword">as</span> session:</span><br><span class="line">    first = session.get(<span class="string">&quot;https://quotes.toscrape.com/page/1/&quot;</span>)</span><br><span class="line">    second = session.get(<span class="string">&quot;https://quotes.toscrape.com/page/2/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(first.css(<span class="string">&quot;.quote&quot;</span>)), <span class="built_in">len</span>(second.css(<span class="string">&quot;.quote&quot;</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>异步会话复用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> FetcherSession</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> FetcherSession(timeout=<span class="number">20</span>, retries=<span class="number">2</span>) <span class="keyword">as</span> session:</span><br><span class="line">        first = <span class="keyword">await</span> session.get(<span class="string">&quot;https://quotes.toscrape.com/page/1/&quot;</span>)</span><br><span class="line">        second = <span class="keyword">await</span> session.get(<span class="string">&quot;https://quotes.toscrape.com/page/2/&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(first.status, second.status)</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<p>浏览器 impersonation 与 HTTP3：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    impersonate=<span class="string">&quot;chrome&quot;</span>,</span><br><span class="line">    stealthy_headers=<span class="literal">True</span>,</span><br><span class="line">    http3=<span class="literal">False</span>,</span><br><span class="line">    follow_redirects=<span class="string">&quot;safe&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.request_headers)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-4"><a href="#常用参数-4" class="headerlink" title="常用参数"></a>常用参数</h3><p><code>Fetcher.get(url, **kwargs)</code>、<code>Fetcher.post(url, **kwargs)</code>、<code>Fetcher.put(url, **kwargs)</code>、<code>Fetcher.delete(url, **kwargs)</code>：</p>
+<ul>
+<li><code>params</code>：查询参数。</li>
+<li><code>headers</code>：请求头。</li>
+<li><code>cookies</code>：Cookie。</li>
+<li><code>data</code>：表单或原始请求体，常用于 POST&#x2F;PUT。</li>
+<li><code>json</code>：JSON 请求体。</li>
+<li><code>timeout</code>：超时秒数，默认 30。</li>
+<li><code>follow_redirects</code>：是否跟随重定向，默认 <code>&quot;safe&quot;</code>，会拒绝跳转到内网&#x2F;私有 IP。</li>
+<li><code>max_redirects</code>：最大重定向次数，默认 30，<code>-1</code> 表示不限。</li>
+<li><code>retries</code>：失败重试次数，默认 3。</li>
+<li><code>retry_delay</code>：重试间隔秒数，默认 1。</li>
+<li><code>proxy</code>：单个代理 URL，例如 <code>&quot;http://user:pass@host:8030&quot;</code>。</li>
+<li><code>proxies</code>：代理字典，例如 <code>&#123;&quot;http&quot;: proxy_url, &quot;https&quot;: proxy_url&#125;</code>。</li>
+<li><code>proxy_auth</code>：代理 Basic Auth，形如 <code>(&quot;user&quot;, &quot;pass&quot;)</code>。</li>
+<li><code>auth</code>：目标站点 Basic Auth。</li>
+<li><code>verify</code>：是否验证 TLS 证书。</li>
+<li><code>cert</code>：客户端证书。</li>
+<li><code>impersonate</code>：模拟浏览器，可传字符串或字符串列表；列表会随机选一个。</li>
+<li><code>http3</code>：启用 HTTP&#x2F;3。</li>
+<li><code>stealthy_headers</code>：默认启用，自动添加更像真实浏览器的请求头。</li>
+<li><code>selector_config</code>：传递给最终 <code>Response</code> &#x2F; <code>Selector</code> 的解析配置。</li>
+</ul>
+<p><code>FetcherSession(...)</code> 支持把上述大部分参数作为会话默认值。</p>
+<h3 id="返回对象-可继续调用的方法-4"><a href="#返回对象-可继续调用的方法-4" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>返回 <code>Response</code>：</p>
+<ul>
+<li>HTTP 信息：<code>.status</code>、<code>.reason</code>、<code>.cookies</code>、<code>.headers</code>、<code>.request_headers</code>、<code>.history</code>、<code>.meta</code>、<code>.body</code>。</li>
+<li>解析方法：<code>.css()</code>、<code>.xpath()</code>、<code>.find()</code>、<code>.find_all()</code>、<code>.re()</code>、<code>.re_first()</code>。</li>
+<li>Spider 中可用：<code>.follow()</code> 创建新 <code>Request</code>。</li>
+</ul>
+<h3 id="适用场景-4"><a href="#适用场景-4" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>静态 HTML 页面。</li>
+<li>JSON&#x2F;API 请求。</li>
+<li>需要 cookies、headers、代理、重试的请求脚本。</li>
+<li>大量 URL 并发抓取但不需要浏览器渲染。</li>
+</ul>
+<h3 id="注意事项-4"><a href="#注意事项-4" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>Fetcher</code> 不执行 JavaScript，也不会等待前端接口完成。</li>
+<li><code>http3=True</code> 与 <code>impersonate</code> 同时使用时可能触发底层 curl 兼容问题。</li>
+<li><code>follow_redirects=&quot;safe&quot;</code> 更安全，生产环境不建议无脑改成 <code>True</code>。</li>
+<li><code>proxy_rotator</code> 不能和 <code>proxy</code> &#x2F; <code>proxies</code> 同时使用。</li>
+</ul>
+<h2 id="6-动态页面抓取：DynamicFetcher-DynamicSession-AsyncDynamicSession"><a href="#6-动态页面抓取：DynamicFetcher-DynamicSession-AsyncDynamicSession" class="headerlink" title="6. 动态页面抓取：DynamicFetcher &#x2F; DynamicSession &#x2F; AsyncDynamicSession"></a>6. 动态页面抓取：DynamicFetcher &#x2F; DynamicSession &#x2F; AsyncDynamicSession</h2><h3 id="功能定位-5"><a href="#功能定位-5" class="headerlink" title="功能定位"></a>功能定位</h3><p><code>DynamicFetcher</code> 基于 Playwright 打开浏览器，适合抓取需要 JavaScript 渲染、等待元素出现、执行页面动作、捕获 XHR&#x2F;fetch 响应的页面。</p>
+<h3 id="基础用法-5"><a href="#基础用法-5" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>,</span><br><span class="line">    wait_selector=<span class="string">&quot;.quote&quot;</span>,</span><br><span class="line">    headless=<span class="literal">True</span>,</span><br><span class="line">    timeout=<span class="number">30000</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.quote .text::text&quot;</span>).getall())</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-5"><a href="#扩展用法-5" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>页面动作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">click_next</span>(<span class="params">page</span>):</span><br><span class="line">    page.locator(<span class="string">&quot;.pager .next a&quot;</span>).click()</span><br><span class="line">    page.wait_for_selector(<span class="string">&quot;.quote&quot;</span>)</span><br><span class="line"></span><br><span class="line">result = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>,</span><br><span class="line">    wait_selector=<span class="string">&quot;.quote&quot;</span>,</span><br><span class="line">    page_action=click_next,</span><br><span class="line">    headless=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(result.css(<span class="string">&quot;.quote .author::text&quot;</span>).getall())</span><br></pre></td></tr></table></figure>
+
+<p>页面初始化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setup_page</span>(<span class="params">page</span>):</span><br><span class="line">    page.set_viewport_size(&#123;<span class="string">&quot;width&quot;</span>: <span class="number">1366</span>, <span class="string">&quot;height&quot;</span>: <span class="number">768</span>&#125;)</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    page_setup=setup_page,</span><br><span class="line">    extra_headers=&#123;<span class="string">&quot;Accept-Language&quot;</span>: <span class="string">&quot;en-US,en;q=0.9&quot;</span>&#125;,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>同步 Session 复用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> DynamicSession</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> DynamicSession(headless=<span class="literal">True</span>, max_pages=<span class="number">2</span>, wait_selector=<span class="string">&quot;body&quot;</span>) <span class="keyword">as</span> session:</span><br><span class="line">    first = session.fetch(<span class="string">&quot;https://example.com/&quot;</span>)</span><br><span class="line">    second = session.fetch(<span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(first.status, second.status)</span><br></pre></td></tr></table></figure>
+
+<p>异步 Session 复用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> AsyncDynamicSession</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> AsyncDynamicSession(headless=<span class="literal">True</span>, max_pages=<span class="number">3</span>) <span class="keyword">as</span> session:</span><br><span class="line">        first = <span class="keyword">await</span> session.fetch(<span class="string">&quot;https://example.com/&quot;</span>)</span><br><span class="line">        second = <span class="keyword">await</span> session.fetch(<span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>, wait_selector=<span class="string">&quot;.quote&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(first.status, second.status)</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<p>捕获 XHR&#x2F;fetch：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    capture_xhr=<span class="string">r&quot;/api/&quot;</span>,</span><br><span class="line">    network_idle=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> xhr <span class="keyword">in</span> page.captured_xhr:</span><br><span class="line">    <span class="built_in">print</span>(xhr.url, xhr.status)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-5"><a href="#常用参数-5" class="headerlink" title="常用参数"></a>常用参数</h3><p><code>DynamicFetcher.fetch(url, **kwargs)</code>、<code>DynamicFetcher.async_fetch(url, **kwargs)</code> 和 Dynamic Session 常用参数：</p>
+<ul>
+<li><code>max_pages</code>：Session 最大页面数，1 到 50。</li>
+<li><code>headless</code>：是否无头运行。</li>
+<li><code>disable_resources</code>：是否拦截图片、字体等非必要资源。</li>
+<li><code>network_idle</code>：是否等待网络空闲。</li>
+<li><code>load_dom</code>：是否等待 DOMContentLoaded。</li>
+<li><code>wait_selector</code>：等待指定 CSS 选择器出现。</li>
+<li><code>wait_selector_state</code>：等待状态，例如 <code>&quot;attached&quot;</code>。</li>
+<li><code>wait</code>：额外等待时间，单位毫秒。</li>
+<li><code>timeout</code>：浏览器操作超时，单位毫秒。</li>
+<li><code>page_action</code>：页面加载后执行的回调。</li>
+<li><code>page_setup</code>：页面访问前执行的回调。</li>
+<li><code>cookies</code>：Playwright 格式 Cookie 列表。</li>
+<li><code>extra_headers</code>：额外请求头。</li>
+<li><code>proxy</code>：静态代理。</li>
+<li><code>proxy_rotator</code>：代理轮换。</li>
+<li><code>blocked_domains</code>：要阻止的域名集合。</li>
+<li><code>block_ads</code>：阻止已知广告&#x2F;追踪域名。</li>
+<li><code>capture_xhr</code>：匹配 XHR&#x2F;fetch URL 的正则。</li>
+<li><code>init_script</code>：绝对路径 JS 初始化脚本。</li>
+<li><code>user_data_dir</code>：持久化用户数据目录。</li>
+<li><code>locale</code>、<code>timezone_id</code>、<code>useragent</code>：浏览器环境。</li>
+<li><code>real_chrome</code>：使用本机 Chrome channel。</li>
+<li><code>cdp_url</code>：连接已有浏览器 CDP WebSocket。</li>
+<li><code>executable_path</code>：指定浏览器可执行文件绝对路径。</li>
+<li><code>dns_over_https</code>：给 Chromium 添加 Cloudflare DoH 参数。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-5"><a href="#返回对象-可继续调用的方法-5" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>返回 <code>Response</code>，并额外适合检查：</p>
+<ul>
+<li><code>.captured_xhr</code>：捕获到的 XHR&#x2F;fetch 响应列表。</li>
+<li><code>.meta[&quot;proxy&quot;]</code>：如果使用代理轮换，可查看本次使用代理。</li>
+<li><code>.css()</code>、<code>.xpath()</code>：对渲染后的 DOM 提取内容。</li>
+</ul>
+<p>Session 对象还支持：</p>
+<ul>
+<li><code>.fetch(url, **kwargs)</code>：同步或异步抓取。</li>
+<li><code>.get_pool_stats()</code>：查看页面池状态。</li>
+<li>上下文管理器自动关闭浏览器资源。</li>
+</ul>
+<h3 id="适用场景-5"><a href="#适用场景-5" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>页面内容由 JavaScript 渲染。</li>
+<li>需要点击、滚动、登录态目录、设置 viewport。</li>
+<li>需要捕获前端接口返回。</li>
+<li>需要复用浏览器上下文提升性能。</li>
+</ul>
+<h3 id="注意事项-5"><a href="#注意事项-5" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>wait</code> 和 <code>timeout</code> 是毫秒，不是秒。</li>
+<li><code>init_script</code> 和 <code>executable_path</code> 必须是存在的绝对文件路径。</li>
+<li><code>proxy</code> 和 <code>proxy_rotator</code> 不能同时使用。</li>
+<li><code>disable_resources=True</code> 可提速，但可能影响依赖图片、字体、XHR 的页面。</li>
+<li>使用 <code>user_data_dir</code> 时注意不要同时让多个进程写同一浏览器用户目录。</li>
+</ul>
+<h2 id="7-反检测抓取：StealthyFetcher-StealthySession-AsyncStealthySession"><a href="#7-反检测抓取：StealthyFetcher-StealthySession-AsyncStealthySession" class="headerlink" title="7. 反检测抓取：StealthyFetcher &#x2F; StealthySession &#x2F; AsyncStealthySession"></a>7. 反检测抓取：StealthyFetcher &#x2F; StealthySession &#x2F; AsyncStealthySession</h2><h3 id="功能定位-6"><a href="#功能定位-6" class="headerlink" title="功能定位"></a>功能定位</h3><p><code>StealthyFetcher</code> 使用 Patchright&#x2F;Stealth 配置运行 Chromium，默认更接近真实浏览器环境。它适合在合法授权范围内访问对自动化浏览器更敏感的页面。</p>
+<h3 id="基础用法-6"><a href="#基础用法-6" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> StealthyFetcher</span><br><span class="line"></span><br><span class="line">page = StealthyFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    headless=<span class="literal">True</span>,</span><br><span class="line">    wait_selector=<span class="string">&quot;body&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;title::text&quot;</span>).get())</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-6"><a href="#扩展用法-6" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>Cloudflare 挑战处理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> StealthyFetcher</span><br><span class="line"></span><br><span class="line">page = StealthyFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    solve_cloudflare=<span class="literal">True</span>,</span><br><span class="line">    headless=<span class="literal">False</span>,</span><br><span class="line">    timeout=<span class="number">90000</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br></pre></td></tr></table></figure>
+
+<p>指纹相关配置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> StealthyFetcher</span><br><span class="line"></span><br><span class="line">page = StealthyFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    allow_webgl=<span class="literal">True</span>,</span><br><span class="line">    hide_canvas=<span class="literal">True</span>,</span><br><span class="line">    block_webrtc=<span class="literal">True</span>,</span><br><span class="line">    locale=<span class="string">&quot;en-US&quot;</span>,</span><br><span class="line">    timezone_id=<span class="string">&quot;America/New_York&quot;</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>异步 Session：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> AsyncStealthySession</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> AsyncStealthySession(</span><br><span class="line">        headless=<span class="literal">True</span>,</span><br><span class="line">        block_webrtc=<span class="literal">True</span>,</span><br><span class="line">        max_pages=<span class="number">2</span>,</span><br><span class="line">    ) <span class="keyword">as</span> session:</span><br><span class="line">        page = <span class="keyword">await</span> session.fetch(<span class="string">&quot;https://example.com/&quot;</span>, wait_selector=<span class="string">&quot;body&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(page.status)</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-6"><a href="#常用参数-6" class="headerlink" title="常用参数"></a>常用参数</h3><p><code>StealthyFetcher</code> 支持大部分 <code>DynamicFetcher</code> 参数，并增加：</p>
+<ul>
+<li><code>allow_webgl</code>：是否允许 WebGL，默认 <code>True</code>。</li>
+<li><code>hide_canvas</code>：是否给 canvas 操作加噪声，默认 <code>False</code>。</li>
+<li><code>block_webrtc</code>：是否阻断 WebRTC 泄漏，默认 <code>False</code>。</li>
+<li><code>solve_cloudflare</code>：是否尝试处理 Cloudflare challenge，默认 <code>False</code>；启用后若 <code>timeout &lt; 60000</code>，内部会提升到至少 60000 毫秒。</li>
+</ul>
+<p>也常与这些参数组合：</p>
+<ul>
+<li><code>headless=False</code>：一些强风控场景下用于观察页面状态。</li>
+<li><code>real_chrome=True</code>：使用本机 Chrome。</li>
+<li><code>user_data_dir</code>：保存浏览器状态。</li>
+<li><code>proxy</code> &#x2F; <code>proxy_rotator</code>：代理或代理轮换。</li>
+<li><code>dns_over_https=True</code>：降低代理场景 DNS 泄漏风险。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-6"><a href="#返回对象-可继续调用的方法-6" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>返回 <code>Response</code>，能力与 <code>DynamicFetcher</code> 一致：</p>
+<ul>
+<li><code>.status</code>、<code>.headers</code>、<code>.body</code>、<code>.captured_xhr</code>。</li>
+<li><code>.css()</code>、<code>.xpath()</code>、<code>.find_by_text()</code>。</li>
+<li>Spider 中可通过 <code>response.follow()</code> 继续创建请求。</li>
+</ul>
+<h3 id="适用场景-6"><a href="#适用场景-6" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>页面检测自动化浏览器特征。</li>
+<li>需要更接近真实 Chrome 的环境。</li>
+<li>需要处理 WebRTC、WebGL、Canvas 等指纹相关选项。</li>
+</ul>
+<h3 id="注意事项-6"><a href="#注意事项-6" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>反检测功能不等于可以绕过授权、付费、登录或验证码。</li>
+<li><code>solve_cloudflare=True</code> 不保证一定成功，也可能需要更长等待时间。</li>
+<li>开启太多“隐藏”选项反而可能让浏览器特征异常，应按目标环境最小化配置。</li>
+<li>浏览器模式比 HTTP fetcher 慢，优先只对必要页面使用。</li>
+</ul>
+<h2 id="8-代理、代理轮换、DNS-与资源拦截"><a href="#8-代理、代理轮换、DNS-与资源拦截" class="headerlink" title="8. 代理、代理轮换、DNS 与资源拦截"></a>8. 代理、代理轮换、DNS 与资源拦截</h2><h3 id="功能定位-7"><a href="#功能定位-7" class="headerlink" title="功能定位"></a>功能定位</h3><p>Scrapling 支持 HTTP fetcher 和浏览器 fetcher 使用静态代理或 <code>ProxyRotator</code> 自动轮换代理。浏览器 fetcher 还支持阻断广告&#x2F;追踪域名、指定阻断域名、禁用资源加载和 DNS over HTTPS。</p>
+<h3 id="基础用法-7"><a href="#基础用法-7" class="headerlink" title="基础用法"></a>基础用法</h3><p>HTTP 静态代理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    proxy=<span class="string">&quot;http://username:password@127.0.0.1:8030&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br></pre></td></tr></table></figure>
+
+<p>浏览器静态代理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    proxy=<span class="string">&quot;http://username:password@127.0.0.1:8030&quot;</span>,</span><br><span class="line">    dns_over_https=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.meta)</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-7"><a href="#扩展用法-7" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>代理轮换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> FetcherSession, ProxyRotator</span><br><span class="line"></span><br><span class="line">rotator = ProxyRotator(</span><br><span class="line">    [</span><br><span class="line">        <span class="string">&quot;http://user:pass@proxy1.example:8030&quot;</span>,</span><br><span class="line">        <span class="string">&quot;http://user:pass@proxy2.example:8030&quot;</span>,</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> FetcherSession(proxy_rotator=rotator, retries=<span class="number">2</span>) <span class="keyword">as</span> session:</span><br><span class="line">    page = session.get(<span class="string">&quot;https://example.com/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.meta.get(<span class="string">&quot;proxy&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>浏览器代理轮换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> DynamicSession, ProxyRotator</span><br><span class="line"></span><br><span class="line">rotator = ProxyRotator(</span><br><span class="line">    [</span><br><span class="line">        <span class="string">&quot;http://user:pass@proxy1.example:8030&quot;</span>,</span><br><span class="line">        <span class="string">&quot;http://user:pass@proxy2.example:8030&quot;</span>,</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> DynamicSession(proxy_rotator=rotator, headless=<span class="literal">True</span>) <span class="keyword">as</span> session:</span><br><span class="line">    page = session.fetch(<span class="string">&quot;https://example.com/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.meta.get(<span class="string">&quot;proxy&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>资源与域名拦截：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> DynamicFetcher</span><br><span class="line"></span><br><span class="line">page = DynamicFetcher.fetch(</span><br><span class="line">    <span class="string">&quot;https://example.com/&quot;</span>,</span><br><span class="line">    disable_resources=<span class="literal">True</span>,</span><br><span class="line">    block_ads=<span class="literal">True</span>,</span><br><span class="line">    blocked_domains=&#123;<span class="string">&quot;analytics.example.com&quot;</span>, <span class="string">&quot;ads.example.com&quot;</span>&#125;,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-7"><a href="#常用参数-7" class="headerlink" title="常用参数"></a>常用参数</h3><ul>
+<li><code>proxy</code>：单个代理，HTTP fetcher 和浏览器 fetcher 都支持。</li>
+<li><code>proxies</code>：HTTP fetcher 的代理字典。</li>
+<li><code>proxy_auth</code>：HTTP fetcher 的代理认证元组。</li>
+<li><code>proxy_rotator</code>：代理轮换器，不能与 <code>proxy</code> 或 <code>proxies</code> 同时使用。</li>
+<li><code>disable_resources</code>：浏览器抓取时阻止非必要资源。</li>
+<li><code>blocked_domains</code>：浏览器抓取时阻断指定域名。</li>
+<li><code>block_ads</code>：浏览器抓取时自动合并内置广告&#x2F;追踪域名列表。</li>
+<li><code>dns_over_https</code>：浏览器抓取时添加 Cloudflare DoH 参数。</li>
+<li><code>retries</code> &#x2F; <code>retry_delay</code>：代理失败时重试。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-7"><a href="#返回对象-可继续调用的方法-7" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><ul>
+<li><code>ProxyRotator.get_proxy()</code>：获取下一个代理。</li>
+<li><code>ProxyRotator.proxies</code>：查看代理列表。</li>
+<li>抓取返回的 <code>Response.meta</code> 可能包含本次使用的代理。</li>
+</ul>
+<h3 id="适用场景-7"><a href="#适用场景-7" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>需要通过固定代理访问目标站点。</li>
+<li>代理池中个别代理可能失败，需要自动轮换。</li>
+<li>浏览器页面加载太慢，需要阻断图片、字体、广告和追踪脚本。</li>
+<li>代理场景下希望降低 DNS 泄漏风险。</li>
+</ul>
+<h3 id="注意事项-7"><a href="#注意事项-7" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>不要同时设置 <code>proxy</code> 和 <code>proxy_rotator</code>。</li>
+<li>浏览器代理轮换通常会为每个代理创建新的 context，资源消耗更高。</li>
+<li><code>disable_resources=True</code> 可能导致页面布局或脚本行为变化。</li>
+<li>代理质量、地域、协议和认证格式会直接影响成功率。</li>
+</ul>
+<h2 id="9-Spider-爬虫框架"><a href="#9-Spider-爬虫框架" class="headerlink" title="9. Spider 爬虫框架"></a>9. Spider 爬虫框架</h2><h3 id="功能定位-8"><a href="#功能定位-8" class="headerlink" title="功能定位"></a>功能定位</h3><p><code>Spider</code> 是 Scrapling 的异步爬虫基类，提供请求队列、并发控制、去重、robots.txt、暂停&#x2F;恢复、会话管理、日志、统计、结果导出和生命周期钩子。</p>
+<h3 id="基础用法-8"><a href="#基础用法-8" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">QuotesSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&quot;quotes&quot;</span></span><br><span class="line">    start_urls = [<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">for</span> quote <span class="keyword">in</span> response.css(<span class="string">&quot;.quote&quot;</span>):</span><br><span class="line">            <span class="keyword">yield</span> &#123;</span><br><span class="line">                <span class="string">&quot;text&quot;</span>: quote.css(<span class="string">&quot;.text::text&quot;</span>).get(),</span><br><span class="line">                <span class="string">&quot;author&quot;</span>: quote.css(<span class="string">&quot;.author::text&quot;</span>).get(),</span><br><span class="line">                <span class="string">&quot;tags&quot;</span>: quote.css(<span class="string">&quot;.tag::text&quot;</span>).getall(),</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        next_url = response.css(<span class="string">&quot;.pager .next a::attr(href)&quot;</span>).get()</span><br><span class="line">        <span class="keyword">if</span> next_url:</span><br><span class="line">            <span class="keyword">yield</span> response.follow(next_url)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    result = QuotesSpider().start()</span><br><span class="line">    <span class="built_in">print</span>(result.stats.to_dict())</span><br><span class="line">    result.items.to_json(<span class="string">&quot;output/quotes.json&quot;</span>, indent=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-8"><a href="#扩展用法-8" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>自定义初始请求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider, Request</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ApiSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&quot;api&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">yield</span> Request(</span><br><span class="line">            <span class="string">&quot;https://example.com/api/items&quot;</span>,</span><br><span class="line">            method=<span class="string">&quot;GET&quot;</span>,</span><br><span class="line">            headers=&#123;<span class="string">&quot;Accept&quot;</span>: <span class="string">&quot;application/json&quot;</span>&#125;,</span><br><span class="line">            meta=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;items-api&quot;</span>&#125;,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        data = response.json()</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> data[<span class="string">&quot;items&quot;</span>]:</span><br><span class="line">            <span class="keyword">yield</span> item</span><br></pre></td></tr></table></figure>
+
+<p>配置并发、robots、暂停恢复：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CarefulSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&quot;careful&quot;</span></span><br><span class="line">    start_urls = [<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>]</span><br><span class="line">    robots_txt_obey = <span class="literal">True</span></span><br><span class="line">    concurrent_requests = <span class="number">2</span></span><br><span class="line">    concurrent_requests_per_domain = <span class="number">1</span></span><br><span class="line">    download_delay = <span class="number">1.0</span></span><br><span class="line">    max_blocked_retries = <span class="number">2</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get()&#125;</span><br><span class="line"></span><br><span class="line">result = CarefulSpider(crawldir=<span class="string">&quot;crawl-state&quot;</span>).start()</span><br><span class="line"><span class="built_in">print</span>(result.completed)</span><br></pre></td></tr></table></figure>
+
+<p>多 session 路由：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.fetchers <span class="keyword">import</span> DynamicSession, FetcherSession</span><br><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider, Request</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HybridSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&quot;hybrid&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">configure_sessions</span>(<span class="params">self, manager</span>):</span><br><span class="line">        manager.add(<span class="string">&quot;http&quot;</span>, FetcherSession(timeout=<span class="number">20</span>))</span><br><span class="line">        manager.add(<span class="string">&quot;browser&quot;</span>, DynamicSession(headless=<span class="literal">True</span>, wait_selector=<span class="string">&quot;body&quot;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">yield</span> Request(<span class="string">&quot;https://example.com/&quot;</span>, sid=<span class="string">&quot;http&quot;</span>, callback=<span class="variable language_">self</span>.parse_static)</span><br><span class="line">        <span class="keyword">yield</span> Request(<span class="string">&quot;https://quotes.toscrape.com/js/&quot;</span>, sid=<span class="string">&quot;browser&quot;</span>, callback=<span class="variable language_">self</span>.parse_dynamic)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse_static</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;url&quot;</span>: response.url, <span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse_dynamic</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;url&quot;</span>: response.url, <span class="string">&quot;quotes&quot;</span>: response.css(<span class="string">&quot;.quote&quot;</span>).length&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;url&quot;</span>: response.url&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生命周期钩子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> Spider</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HookSpider</span>(<span class="title class_ inherited__">Spider</span>):</span><br><span class="line">    name = <span class="string">&quot;hooks&quot;</span></span><br><span class="line">    start_urls = [<span class="string">&quot;https://example.com/&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">on_start</span>(<span class="params">self, resuming=<span class="literal">False</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.logger.info(<span class="string">&quot;resuming=%s&quot;</span>, resuming)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">on_scraped_item</span>(<span class="params">self, item</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> item.get(<span class="string">&quot;title&quot;</span>):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        item[<span class="string">&quot;normalized&quot;</span>] = item[<span class="string">&quot;title&quot;</span>].strip()</span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">is_blocked</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">return</span> response.status <span class="keyword">in</span> &#123;<span class="number">403</span>, <span class="number">429</span>&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">retry_blocked_request</span>(<span class="params">self, request, response</span>):</span><br><span class="line">        new_request = request.copy()</span><br><span class="line">        new_request.meta[<span class="string">&quot;blocked_status&quot;</span>] = response.status</span><br><span class="line">        <span class="keyword">return</span> new_request</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">on_error</span>(<span class="params">self, request, error</span>):</span><br><span class="line">        <span class="variable language_">self</span>.logger.error(<span class="string">&quot;failed %s: %s&quot;</span>, request.url, error)</span><br></pre></td></tr></table></figure>
+
+<p>流式消费：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    spider = QuotesSpider()</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">for</span> item <span class="keyword">in</span> spider.stream():</span><br><span class="line">        <span class="built_in">print</span>(item)</span><br><span class="line">        <span class="built_in">print</span>(spider.stats.to_dict())</span><br><span class="line"></span><br><span class="line">asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-8"><a href="#常用参数-8" class="headerlink" title="常用参数"></a>常用参数</h3><p>Spider 类属性：</p>
+<ul>
+<li><code>name</code>：必填，爬虫名称。</li>
+<li><code>start_urls</code>：默认初始 URL 列表。</li>
+<li><code>allowed_domains</code>：允许抓取的域名集合。</li>
+<li><code>robots_txt_obey</code>：是否遵守 robots.txt。</li>
+<li><code>development_mode</code> &#x2F; <code>development_cache_dir</code>：开发缓存相关设置。</li>
+<li><code>concurrent_requests</code>：全局并发数，默认 4。</li>
+<li><code>concurrent_requests_per_domain</code>：单域名并发，默认 0 表示不单独限制。</li>
+<li><code>download_delay</code>：请求间隔秒数。</li>
+<li><code>max_blocked_retries</code>：被判定 blocked 后最大重试次数。</li>
+<li><code>fp_include_kwargs</code>、<code>fp_keep_fragments</code>、<code>fp_include_headers</code>：请求去重指纹参数。</li>
+<li><code>logging_level</code>、<code>logging_format</code>、<code>logging_date_format</code>、<code>log_file</code>：日志配置。</li>
+</ul>
+<p>Spider 实例化：</p>
+<ul>
+<li><code>Spider(crawldir=None, interval=300.0)</code>：传入 <code>crawldir</code> 后启用 checkpoint，<code>interval</code> 为定期保存秒数。</li>
+</ul>
+<p><code>Request(url, sid=&quot;&quot;, callback=None, priority=0, dont_filter=False, meta=None, **kwargs)</code>：</p>
+<ul>
+<li><code>sid</code>：选择哪个 session。</li>
+<li><code>callback</code>：响应回调，默认通常是 <code>parse</code>。</li>
+<li><code>priority</code>：优先级，数值越高越优先。</li>
+<li><code>dont_filter</code>：是否绕过去重。</li>
+<li><code>meta</code>：请求元数据，会传到响应。</li>
+<li><code>**kwargs</code>：传给对应 session 的抓取参数，例如 <code>headers</code>、<code>extra_headers</code>、<code>method</code>、<code>json</code>、<code>wait_selector</code>。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-8"><a href="#返回对象-可继续调用的方法-8" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p><code>spider.start()</code> 返回 <code>CrawlResult</code>：</p>
+<ul>
+<li><code>.stats</code>：<code>CrawlStats</code>。</li>
+<li><code>.items</code>：<code>ItemList</code>。</li>
+<li><code>.paused</code>：是否暂停。</li>
+<li><code>.completed</code>：是否正常完成。</li>
+<li><code>len(result)</code>：抓取 item 数。</li>
+<li><code>for item in result</code>：遍历 item。</li>
+</ul>
+<p><code>ItemList</code>：</p>
+<ul>
+<li><code>.to_json(path, indent=False)</code>：导出 JSON。</li>
+<li><code>.to_jsonl(path)</code>：导出 JSON Lines。</li>
+</ul>
+<p><code>CrawlStats</code>：</p>
+<ul>
+<li><code>.to_dict()</code>：导出统计字典。</li>
+<li><code>.elapsed_seconds</code>、<code>.requests_per_second</code>：运行指标。</li>
+<li>常见字段：<code>requests_count</code>、<code>failed_requests_count</code>、<code>items_scraped</code>、<code>items_dropped</code>、<code>blocked_requests_count</code>、<code>response_status_count</code>、<code>sessions_requests_count</code>。</li>
+</ul>
+<p><code>Response.follow(...)</code>：</p>
+<ul>
+<li>基于当前响应创建新 <code>Request</code>。</li>
+<li>支持相对 URL 自动补全。</li>
+<li>默认继承前一个请求的 session 参数，并自动设置 referer。</li>
+</ul>
+<h3 id="适用场景-8"><a href="#适用场景-8" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>多页分页抓取。</li>
+<li>需要去重、限速、并发和结果导出。</li>
+<li>需要跨 HTTP 和浏览器 session 混合抓取。</li>
+<li>需要长任务暂停&#x2F;恢复。</li>
+</ul>
+<h3 id="注意事项-8"><a href="#注意事项-8" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>Spider.name</code> 必须设置，否则初始化会报错。</li>
+<li>如果没有 <code>start_urls</code>，必须重写 <code>start_requests()</code>。</li>
+<li><code>parse()</code> 必须是异步生成器，使用 <code>yield</code> 产出 item 或 <code>Request</code>。</li>
+<li>如果重写 <code>configure_sessions()</code>，至少要 <code>manager.add(...)</code> 一个 session。</li>
+<li><code>stream()</code> 模式不支持 SIGINT pause&#x2F;resume。</li>
+</ul>
+<h2 id="10-通用爬虫模板：CrawlSpider-SitemapSpider"><a href="#10-通用爬虫模板：CrawlSpider-SitemapSpider" class="headerlink" title="10. 通用爬虫模板：CrawlSpider &#x2F; SitemapSpider"></a>10. 通用爬虫模板：CrawlSpider &#x2F; SitemapSpider</h2><h3 id="功能定位-9"><a href="#功能定位-9" class="headerlink" title="功能定位"></a>功能定位</h3><p><code>CrawlSpider</code> 用规则自动提取并跟随链接；<code>SitemapSpider</code> 从 sitemap 或 robots.txt 中发现 URL，再按规则派发请求。</p>
+<h3 id="基础用法-9"><a href="#基础用法-9" class="headerlink" title="基础用法"></a>基础用法</h3><p><code>CrawlSpider</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> CrawlSpider, CrawlRule, LinkExtractor</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DocsSpider</span>(<span class="title class_ inherited__">CrawlSpider</span>):</span><br><span class="line">    name = <span class="string">&quot;docs&quot;</span></span><br><span class="line">    start_urls = [<span class="string">&quot;https://example.com/&quot;</span>]</span><br><span class="line">    allowed_domains = &#123;<span class="string">&quot;example.com&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">rules</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> [</span><br><span class="line">            CrawlRule(</span><br><span class="line">                LinkExtractor(allow=<span class="string">r&quot;/docs/&quot;</span>),</span><br><span class="line">                callback=<span class="variable language_">self</span>.parse_doc,</span><br><span class="line">                priority=<span class="number">10</span>,</span><br><span class="line">            )</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse_doc</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: response.url,</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get(),</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>SitemapSpider</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> SitemapSpider</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SiteMapPagesSpider</span>(<span class="title class_ inherited__">SitemapSpider</span>):</span><br><span class="line">    name = <span class="string">&quot;sitemap-pages&quot;</span></span><br><span class="line">    sitemap_urls = [<span class="string">&quot;https://example.com/sitemap.xml&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: response.url,</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get(),</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">result = SiteMapPagesSpider().start()</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-9"><a href="#扩展用法-9" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>请求加工：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> CrawlSpider, CrawlRule, LinkExtractor</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PrioritySpider</span>(<span class="title class_ inherited__">CrawlSpider</span>):</span><br><span class="line">    name = <span class="string">&quot;priority&quot;</span></span><br><span class="line">    start_urls = [<span class="string">&quot;https://example.com/&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_headers</span>(<span class="params">self, request, response</span>):</span><br><span class="line">        request.meta[<span class="string">&quot;from&quot;</span>] = response.url</span><br><span class="line">        request._session_kwargs.setdefault(<span class="string">&quot;headers&quot;</span>, &#123;&#125;)[<span class="string">&quot;X-Source&quot;</span>] = <span class="string">&quot;crawler&quot;</span></span><br><span class="line">        <span class="keyword">return</span> request</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">rules</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> [</span><br><span class="line">            CrawlRule(</span><br><span class="line">                LinkExtractor(allow=<span class="string">r&quot;/products/&quot;</span>),</span><br><span class="line">                callback=<span class="variable language_">self</span>.parse_product,</span><br><span class="line">                priority=<span class="number">20</span>,</span><br><span class="line">                process_request=<span class="variable language_">self</span>.add_headers,</span><br><span class="line">            )</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse_product</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;url&quot;</span>: response.url, <span class="string">&quot;source&quot;</span>: response.meta.get(<span class="string">&quot;from&quot;</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从 robots.txt 读取 sitemap，并限制子 sitemap：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.spiders <span class="keyword">import</span> SitemapSpider, CrawlRule, LinkExtractor</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BlogSitemapSpider</span>(<span class="title class_ inherited__">SitemapSpider</span>):</span><br><span class="line">    name = <span class="string">&quot;blog-sitemap&quot;</span></span><br><span class="line">    sitemap_urls = [<span class="string">&quot;https://example.com/robots.txt&quot;</span>]</span><br><span class="line">    sitemap_follow = LinkExtractor(allow=<span class="string">r&quot;blog&quot;</span>)</span><br><span class="line">    sitemap_alternate_links = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">rules</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> [</span><br><span class="line">            CrawlRule(</span><br><span class="line">                LinkExtractor(allow=<span class="string">r&quot;/blog/&quot;</span>),</span><br><span class="line">                callback=<span class="variable language_">self</span>.parse_blog,</span><br><span class="line">            )</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">parse_blog</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="keyword">yield</span> &#123;<span class="string">&quot;url&quot;</span>: response.url, <span class="string">&quot;title&quot;</span>: response.css(<span class="string">&quot;title::text&quot;</span>).get()&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-9"><a href="#常用参数-9" class="headerlink" title="常用参数"></a>常用参数</h3><p><code>CrawlRule(link_extractor, callback=None, priority=None, process_request=None)</code>：</p>
+<ul>
+<li><code>link_extractor</code>：负责从页面提取 URL 的 <code>LinkExtractor</code>。</li>
+<li><code>callback</code>：匹配 URL 的回调，默认回到 spider 的 <code>parse()</code>。</li>
+<li><code>priority</code>：派发请求优先级。</li>
+<li><code>process_request</code>：请求发送前加工函数，签名 <code>(request, response) -&gt; request</code>。</li>
+</ul>
+<p><code>SitemapSpider</code> 类属性：</p>
+<ul>
+<li><code>sitemap_urls</code>：sitemap 或 robots.txt URL 列表。</li>
+<li><code>sitemap_follow</code>：过滤 sitemapindex 中子 sitemap 的 <code>LinkExtractor</code>。</li>
+<li><code>sitemap_alternate_links</code>：是否提取 alternate language URL。</li>
+</ul>
+<p><code>LinkExtractor</code> 常用能力：</p>
+<ul>
+<li><code>.extract(response)</code>：从 <code>Response</code> 提取 URL。</li>
+<li><code>.matches(url)</code>：判断 URL 是否符合规则。</li>
+<li>常用于 allow&#x2F;deny、域名、扩展名过滤等链接规则。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-9"><a href="#返回对象-可继续调用的方法-9" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>模板 spider 仍然返回 <code>CrawlResult</code>，item 导出和统计方式与普通 <code>Spider</code> 一致。</p>
+<h3 id="适用场景-9"><a href="#适用场景-9" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li><code>CrawlSpider</code>：从入口页自动发现并跟踪站内链接。</li>
+<li><code>SitemapSpider</code>：目标站点有 sitemap，需要覆盖大量已公开 URL。</li>
+<li>需要用规则把不同 URL 路由到不同解析回调。</li>
+</ul>
+<h3 id="注意事项-9"><a href="#注意事项-9" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><code>CrawlSpider.parse()</code> 默认只负责按 rules 跟随链接；真正 item 提取应写在 callback 中。</li>
+<li><code>SitemapSpider</code> 如果没有 rules，会把 sitemap 中 URL 交给 <code>parse()</code>；因此必须实现 <code>parse()</code> 或提供 rules。</li>
+<li>sitemap gzip 解压有 64 MiB 上限，避免 gzip bomb。</li>
+</ul>
+<h2 id="11-CLI-与交互式-Shell"><a href="#11-CLI-与交互式-Shell" class="headerlink" title="11. CLI 与交互式 Shell"></a>11. CLI 与交互式 Shell</h2><h3 id="功能定位-10"><a href="#功能定位-10" class="headerlink" title="功能定位"></a>功能定位</h3><p>Scrapling CLI 适合快速安装依赖、进入交互式抓取环境、从命令行提取网页内容、启动 MCP 服务。</p>
+<h3 id="基础用法-10"><a href="#基础用法-10" class="headerlink" title="基础用法"></a>基础用法</h3><p>查看版本和命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scrapling <span class="literal">--version</span></span><br><span class="line">scrapling <span class="literal">--help</span></span><br></pre></td></tr></table></figure>
+
+<p>安装 fetcher 依赖：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scrapling install</span><br><span class="line">scrapling install <span class="literal">--force</span></span><br></pre></td></tr></table></figure>
+
+<p>交互式 Shell：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling shell</span><br></pre></td></tr></table></figure>
+
+<p>执行一段代码后退出：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling shell <span class="literal">-c</span> <span class="string">&quot;from scrapling import Selector; print(Selector(&#x27;&lt;h1&gt;Hello&lt;/h1&gt;&#x27;).css(&#x27;h1::text&#x27;).get())&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-10"><a href="#扩展用法-10" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>HTTP 提取：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scrapling extract get https://quotes.toscrape.com/ output.html</span><br><span class="line">scrapling extract get https://quotes.toscrape.com/ output.md <span class="literal">--ai-targeted</span></span><br><span class="line">scrapling extract get https://quotes.toscrape.com/ quotes.txt <span class="literal">-s</span> <span class="string">&quot;.quote .text&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>POST &#x2F; PUT &#x2F; DELETE：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scrapling extract post https://example.com/api/search output.json <span class="literal">-j</span> <span class="string">&quot;&#123;\&quot;</span>keyword\<span class="string">&quot;:\&quot;</span>scrapling\<span class="string">&quot;&#125;&quot;</span> <span class="literal">-H</span> <span class="string">&quot;Accept: application/json&quot;</span></span><br><span class="line">scrapling extract put https://example.com/api/item/<span class="number">1</span> output.txt <span class="literal">-d</span> <span class="string">&quot;name=value&quot;</span></span><br><span class="line">scrapling extract delete https://example.com/api/item/<span class="number">1</span> output.txt</span><br></pre></td></tr></table></figure>
+
+<p>浏览器提取：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling extract fetch https://quotes.toscrape.com/js/ output.html <span class="literal">--wait-selector</span> <span class="string">&quot;.quote&quot;</span> <span class="literal">--network-idle</span></span><br></pre></td></tr></table></figure>
+
+<p>反检测浏览器提取：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling extract stealthy<span class="literal">-fetch</span> https://example.com/ output.html <span class="literal">--headless</span> <span class="literal">--block-webrtc</span> <span class="literal">--hide-canvas</span></span><br></pre></td></tr></table></figure>
+
+<p>MCP：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scrapling mcp</span><br><span class="line">scrapling mcp <span class="literal">--http</span> <span class="literal">--host</span> <span class="number">127.0</span>.<span class="number">0.1</span> <span class="literal">--port</span> <span class="number">8000</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-10"><a href="#常用参数-10" class="headerlink" title="常用参数"></a>常用参数</h3><p>HTTP extract 通用参数：</p>
+<ul>
+<li><code>--headers</code> &#x2F; <code>-H</code>：请求头，可重复。</li>
+<li><code>--cookies</code>：Cookie 字符串。</li>
+<li><code>--timeout</code>：秒。</li>
+<li><code>--proxy</code>：代理 URL。</li>
+<li><code>--css-selector</code> &#x2F; <code>-s</code>：只保存指定 CSS 匹配内容。</li>
+<li><code>--params</code> &#x2F; <code>-p</code>：查询参数，可重复。</li>
+<li><code>--follow-redirects</code> &#x2F; <code>--no-follow-redirects</code>：是否跟随重定向。</li>
+<li><code>--verify</code> &#x2F; <code>--no-verify</code>：是否验证 TLS。</li>
+<li><code>--impersonate</code>：浏览器 impersonation，可用逗号传多个候选。</li>
+<li><code>--stealthy-headers</code> &#x2F; <code>--no-stealthy-headers</code>：是否添加浏览器式 headers。</li>
+<li><code>--ai-targeted</code>：提取主内容并清理隐藏元素，适合给 AI 消费。</li>
+</ul>
+<p>浏览器 extract 通用参数：</p>
+<ul>
+<li><code>--headless</code> &#x2F; <code>--no-headless</code></li>
+<li><code>--disable-resources</code> &#x2F; <code>--enable-resources</code></li>
+<li><code>--network-idle</code> &#x2F; <code>--no-network-idle</code></li>
+<li><code>--wait</code>：额外等待毫秒。</li>
+<li><code>--wait-selector</code>：等待 CSS 选择器。</li>
+<li><code>--timeout</code>：毫秒。</li>
+<li><code>--locale</code></li>
+<li><code>--real-chrome</code> &#x2F; <code>--no-real-chrome</code></li>
+<li><code>--dns-over-https</code> &#x2F; <code>--no-dns-over-https</code></li>
+<li><code>--block-ads</code> &#x2F; <code>--no-block-ads</code></li>
+<li><code>--extra-headers</code> &#x2F; <code>-H</code></li>
+<li><code>--ai-targeted</code></li>
+</ul>
+<p><code>stealthy-fetch</code> 额外参数：</p>
+<ul>
+<li><code>--block-webrtc</code> &#x2F; <code>--allow-webrtc</code></li>
+<li><code>--solve-cloudflare</code> &#x2F; <code>--no-solve-cloudflare</code></li>
+<li><code>--allow-webgl</code> &#x2F; <code>--block-webgl</code></li>
+<li><code>--hide-canvas</code> &#x2F; <code>--show-canvas</code></li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-10"><a href="#返回对象-可继续调用的方法-10" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>CLI 输出到文件：</p>
+<ul>
+<li><code>.html</code>：保存 HTML 内容。</li>
+<li><code>.md</code>：保存由 HTML 转换出的 Markdown 内容。</li>
+<li><code>.txt</code>：保存文本内容。</li>
+</ul>
+<p><code>--css-selector</code> 会让输出只包含匹配的内容。<code>--ai-targeted</code> 会偏向提取主内容并清理隐藏元素。</p>
+<h3 id="适用场景-10"><a href="#适用场景-10" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>快速检查某个 URL 是否可抓。</li>
+<li>不写 Python 也能把网页保存到文件。</li>
+<li>把 Scrapling 作为 AI 工作流中的外部抓取工具。</li>
+</ul>
+<h3 id="注意事项-10"><a href="#注意事项-10" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>PowerShell 中 JSON 字符串需要正确转义。</li>
+<li>CLI browser fetcher 的 <code>--timeout</code> 是毫秒，HTTP extract 的 <code>--timeout</code> 是秒。</li>
+<li>文件扩展名决定保存格式，建议明确使用 <code>.html</code>、<code>.md</code> 或 <code>.txt</code>。</li>
+</ul>
+<h2 id="12-MCP-AI-集成"><a href="#12-MCP-AI-集成" class="headerlink" title="12. MCP &#x2F; AI 集成"></a>12. MCP &#x2F; AI 集成</h2><h3 id="功能定位-11"><a href="#功能定位-11" class="headerlink" title="功能定位"></a>功能定位</h3><p>Scrapling 提供 MCP server，让支持 Model Context Protocol 的客户端通过工具调用执行抓取、批量抓取和浏览器抓取，并获得结构化结果。</p>
+<h3 id="基础用法-11"><a href="#基础用法-11" class="headerlink" title="基础用法"></a>基础用法</h3><p>stdio 模式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling mcp</span><br></pre></td></tr></table></figure>
+
+<p>HTTP 模式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling mcp <span class="literal">--http</span> <span class="literal">--host</span> <span class="number">127.0</span>.<span class="number">0.1</span> <span class="literal">--port</span> <span class="number">8000</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-11"><a href="#扩展用法-11" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>在 AI 客户端配置中，把 <code>scrapling mcp</code> 作为本地 MCP server 命令。若客户端支持 streamable-http，则可以使用 HTTP 模式并连接：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8000</span><br></pre></td></tr></table></figure>
+
+<p>典型 AI 调用流程：</p>
+<ol>
+<li>AI 选择 URL。</li>
+<li>MCP 调用 Scrapling fetch 工具。</li>
+<li>Scrapling 返回页面标题、URL、状态码、正文、Markdown 或提取内容。</li>
+<li>AI 对内容做总结、问答或结构化抽取。</li>
+</ol>
+<h3 id="常用参数-11"><a href="#常用参数-11" class="headerlink" title="常用参数"></a>常用参数</h3><ul>
+<li><code>--http</code>：启用 streamable-http transport。</li>
+<li><code>--host</code>：HTTP 模式监听地址，默认 <code>0.0.0.0</code>。</li>
+<li><code>--port</code>：HTTP 模式端口，默认 <code>8000</code>。</li>
+</ul>
+<p>MCP 工具内部通常会暴露类似能力：</p>
+<ul>
+<li>HTTP 抓取 URL。</li>
+<li>浏览器抓取 URL。</li>
+<li>批量抓取 URL。</li>
+<li>提取指定 CSS 内容。</li>
+<li>返回文本、HTML、Markdown 或结构化响应。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-11"><a href="#返回对象-可继续调用的方法-11" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>MCP 返回由 server 封装过的结构化响应。Python 侧可直接使用 <code>scrapling.core.ai.ScraplingMCPServer</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling.core.ai <span class="keyword">import</span> ScraplingMCPServer</span><br><span class="line"></span><br><span class="line">server = ScraplingMCPServer()</span><br><span class="line">server.serve(http=<span class="literal">True</span>, host=<span class="string">&quot;127.0.0.1&quot;</span>, port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="适用场景-11"><a href="#适用场景-11" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>让本地 AI 助手读取网页内容。</li>
+<li>把网页抓取变成工具调用，而不是手写脚本。</li>
+<li>批量抓取网页后交给 LLM 进行摘要或抽取。</li>
+</ul>
+<h3 id="注意事项-11"><a href="#注意事项-11" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>MCP 可能把抓取内容交给 AI 客户端处理，注意隐私和数据授权。</li>
+<li>不要让 AI 自动访问需要登录、敏感、付费或未经授权的网站。</li>
+<li>HTTP 模式监听 <code>0.0.0.0</code> 会暴露到可访问网段，本地开发建议使用 <code>127.0.0.1</code>。</li>
+</ul>
+<h2 id="13-常见问题、调试建议、合规提醒"><a href="#13-常见问题、调试建议、合规提醒" class="headerlink" title="13. 常见问题、调试建议、合规提醒"></a>13. 常见问题、调试建议、合规提醒</h2><h3 id="功能定位-12"><a href="#功能定位-12" class="headerlink" title="功能定位"></a>功能定位</h3><p>本节汇总使用 Scrapling 时最常见的问题和处理思路。</p>
+<h3 id="基础用法-12"><a href="#基础用法-12" class="headerlink" title="基础用法"></a>基础用法</h3><p>确认当前项目使用的版本：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python <span class="literal">-c</span> <span class="string">&quot;import scrapling; print(scrapling.__version__)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>确认主要 API 能导入：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python <span class="literal">-c</span> <span class="string">&quot;from scrapling.fetchers import Fetcher, DynamicFetcher, StealthyFetcher; print(Fetcher, DynamicFetcher, StealthyFetcher)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 CLI：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapling <span class="literal">--help</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展用法-12"><a href="#扩展用法-12" class="headerlink" title="扩展用法"></a>扩展用法</h3><p>调试选择器：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;title::text&quot;</span>).get())</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.quote&quot;</span>).length)</span><br><span class="line"><span class="built_in">print</span>(page.css(<span class="string">&quot;.quote&quot;</span>).first.prettify())</span><br></pre></td></tr></table></figure>
+
+<p>保存原始 HTML 方便离线分析：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(<span class="string">&quot;https://quotes.toscrape.com/&quot;</span>)</span><br><span class="line">Path(<span class="string">&quot;debug.html&quot;</span>).write_bytes(page.body)</span><br></pre></td></tr></table></figure>
+
+<p>定位响应和请求信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapling <span class="keyword">import</span> Fetcher</span><br><span class="line"></span><br><span class="line">page = Fetcher.get(<span class="string">&quot;https://example.com/&quot;</span>, follow_redirects=<span class="string">&quot;safe&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(page.status, page.reason)</span><br><span class="line"><span class="built_in">print</span>(page.url)</span><br><span class="line"><span class="built_in">print</span>(page.headers)</span><br><span class="line"><span class="built_in">print</span>(page.request_headers)</span><br><span class="line"><span class="built_in">print</span>(page.history)</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用参数-12"><a href="#常用参数-12" class="headerlink" title="常用参数"></a>常用参数</h3><p>排障时优先检查：</p>
+<ul>
+<li><code>status</code>：是否 200、301&#x2F;302、403、429、500。</li>
+<li><code>body</code>：目标内容是否在 HTML 中。</li>
+<li><code>headers</code> &#x2F; <code>request_headers</code>：请求头是否符合预期。</li>
+<li><code>timeout</code>：页面是否因等待不足失败。</li>
+<li><code>wait_selector</code>：动态页面是否等待了正确元素。</li>
+<li><code>network_idle</code>：前端接口是否仍在加载。</li>
+<li><code>retries</code> &#x2F; <code>retry_delay</code>：是否有短暂网络波动。</li>
+<li><code>proxy</code> &#x2F; <code>proxy_rotator</code>：代理是否可用。</li>
+</ul>
+<h3 id="返回对象-可继续调用的方法-12"><a href="#返回对象-可继续调用的方法-12" class="headerlink" title="返回对象&#x2F;可继续调用的方法"></a>返回对象&#x2F;可继续调用的方法</h3><p>问题定位通常从 <code>Response</code> 开始：</p>
+<ul>
+<li><code>.status</code> 判断请求结果。</li>
+<li><code>.body</code> 保存原始响应。</li>
+<li><code>.css()</code> &#x2F; <code>.xpath()</code> 验证选择器。</li>
+<li><code>.captured_xhr</code> 查看浏览器捕获接口。</li>
+<li><code>.meta</code> 查看代理等元数据。</li>
+</ul>
+<p>Spider 中从 <code>CrawlResult</code> 开始：</p>
+<ul>
+<li><code>result.stats.to_dict()</code> 查看失败、被 robots 拦截、blocked、状态码分布。</li>
+<li><code>result.items.to_json(...)</code> 导出样本检查。</li>
+<li><code>log_file</code> 保存日志。</li>
+</ul>
+<h3 id="适用场景-12"><a href="#适用场景-12" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>选择器无结果。</li>
+<li>HTTP 请求可访问但内容为空。</li>
+<li>浏览器页面没有等到目标元素。</li>
+<li>代理失败或频繁 403&#x2F;429。</li>
+<li>Spider 结果数量和预期不一致。</li>
+</ul>
+<h3 id="注意事项-12"><a href="#注意事项-12" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>如果静态 HTML 里没有目标内容，通常需要 <code>DynamicFetcher</code>。</li>
+<li>如果 <code>DynamicFetcher</code> 仍抓不到，检查是否需要登录、滚动、点击、等待 XHR。</li>
+<li>403&#x2F;429 不一定是“反检测没做好”，也可能是访问频率、地域、权限或服务条款限制。</li>
+<li>遵守 robots.txt、版权、隐私和目标网站服务条款。</li>
+<li>设置合理并发和延迟，不要对目标服务造成压力。</li>
+<li>不要抓取或保存敏感个人信息，除非你有明确合法授权和安全存储方案。</li>
+</ul>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2026/06/19/scrapling-usage-manual/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Scrapling-0-4-9-API-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C"><span class="toc-number">1.</span> <span class="toc-text">Scrapling 0.4.9 API 使用手册</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A1%B9%E7%9B%AE%E7%AE%80%E4%BB%8B%E4%B8%8E%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.2.</span> <span class="toc-text">1. 项目简介与适用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.2.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95"><span class="toc-number">1.2.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95"><span class="toc-number">1.2.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">1.2.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.2.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">1.2.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BE%9D%E8%B5%96"><span class="toc-number">1.3.</span> <span class="toc-text">2. 安装与依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-1"><span class="toc-number">1.3.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-1"><span class="toc-number">1.3.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-1"><span class="toc-number">1.3.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-1"><span class="toc-number">1.3.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-1"><span class="toc-number">1.3.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">1.3.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-number">1.3.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="toc-number">1.4.</span> <span class="toc-text">3. 快速开始</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-2"><span class="toc-number">1.4.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-2"><span class="toc-number">1.4.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-2"><span class="toc-number">1.4.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-2"><span class="toc-number">1.4.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-2"><span class="toc-number">1.4.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-2"><span class="toc-number">1.4.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-2"><span class="toc-number">1.4.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-HTML-%E8%A7%A3%E6%9E%90%E4%B8%8E%E9%80%89%E6%8B%A9%E5%99%A8-API"><span class="toc-number">1.5.</span> <span class="toc-text">4. HTML 解析与选择器 API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-3"><span class="toc-number">1.5.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-3"><span class="toc-number">1.5.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-3"><span class="toc-number">1.5.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-3"><span class="toc-number">1.5.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-3"><span class="toc-number">1.5.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-3"><span class="toc-number">1.5.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-3"><span class="toc-number">1.5.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-HTTP-%E6%8A%93%E5%8F%96%EF%BC%9AFetcher-AsyncFetcher-FetcherSession"><span class="toc-number">1.6.</span> <span class="toc-text">5. HTTP 抓取：Fetcher &#x2F; AsyncFetcher &#x2F; FetcherSession</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-4"><span class="toc-number">1.6.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-4"><span class="toc-number">1.6.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-4"><span class="toc-number">1.6.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-4"><span class="toc-number">1.6.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-4"><span class="toc-number">1.6.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-4"><span class="toc-number">1.6.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-4"><span class="toc-number">1.6.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%8A%A8%E6%80%81%E9%A1%B5%E9%9D%A2%E6%8A%93%E5%8F%96%EF%BC%9ADynamicFetcher-DynamicSession-AsyncDynamicSession"><span class="toc-number">1.7.</span> <span class="toc-text">6. 动态页面抓取：DynamicFetcher &#x2F; DynamicSession &#x2F; AsyncDynamicSession</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-5"><span class="toc-number">1.7.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-5"><span class="toc-number">1.7.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-5"><span class="toc-number">1.7.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-5"><span class="toc-number">1.7.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-5"><span class="toc-number">1.7.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-5"><span class="toc-number">1.7.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-5"><span class="toc-number">1.7.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%8F%8D%E6%A3%80%E6%B5%8B%E6%8A%93%E5%8F%96%EF%BC%9AStealthyFetcher-StealthySession-AsyncStealthySession"><span class="toc-number">1.8.</span> <span class="toc-text">7. 反检测抓取：StealthyFetcher &#x2F; StealthySession &#x2F; AsyncStealthySession</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-6"><span class="toc-number">1.8.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-6"><span class="toc-number">1.8.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-6"><span class="toc-number">1.8.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-6"><span class="toc-number">1.8.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-6"><span class="toc-number">1.8.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-6"><span class="toc-number">1.8.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-6"><span class="toc-number">1.8.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%BB%A3%E7%90%86%E3%80%81%E4%BB%A3%E7%90%86%E8%BD%AE%E6%8D%A2%E3%80%81DNS-%E4%B8%8E%E8%B5%84%E6%BA%90%E6%8B%A6%E6%88%AA"><span class="toc-number">1.9.</span> <span class="toc-text">8. 代理、代理轮换、DNS 与资源拦截</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-7"><span class="toc-number">1.9.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-7"><span class="toc-number">1.9.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-7"><span class="toc-number">1.9.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-7"><span class="toc-number">1.9.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-7"><span class="toc-number">1.9.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-7"><span class="toc-number">1.9.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-7"><span class="toc-number">1.9.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Spider-%E7%88%AC%E8%99%AB%E6%A1%86%E6%9E%B6"><span class="toc-number">1.10.</span> <span class="toc-text">9. Spider 爬虫框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-8"><span class="toc-number">1.10.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-8"><span class="toc-number">1.10.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-8"><span class="toc-number">1.10.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-8"><span class="toc-number">1.10.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-8"><span class="toc-number">1.10.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-8"><span class="toc-number">1.10.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-8"><span class="toc-number">1.10.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E9%80%9A%E7%94%A8%E7%88%AC%E8%99%AB%E6%A8%A1%E6%9D%BF%EF%BC%9ACrawlSpider-SitemapSpider"><span class="toc-number">1.11.</span> <span class="toc-text">10. 通用爬虫模板：CrawlSpider &#x2F; SitemapSpider</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-9"><span class="toc-number">1.11.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-9"><span class="toc-number">1.11.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-9"><span class="toc-number">1.11.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-9"><span class="toc-number">1.11.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-9"><span class="toc-number">1.11.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-9"><span class="toc-number">1.11.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-9"><span class="toc-number">1.11.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-CLI-%E4%B8%8E%E4%BA%A4%E4%BA%92%E5%BC%8F-Shell"><span class="toc-number">1.12.</span> <span class="toc-text">11. CLI 与交互式 Shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-10"><span class="toc-number">1.12.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-10"><span class="toc-number">1.12.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-10"><span class="toc-number">1.12.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-10"><span class="toc-number">1.12.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-10"><span class="toc-number">1.12.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-10"><span class="toc-number">1.12.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-10"><span class="toc-number">1.12.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-MCP-AI-%E9%9B%86%E6%88%90"><span class="toc-number">1.13.</span> <span class="toc-text">12. MCP &#x2F; AI 集成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-11"><span class="toc-number">1.13.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-11"><span class="toc-number">1.13.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-11"><span class="toc-number">1.13.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-11"><span class="toc-number">1.13.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-11"><span class="toc-number">1.13.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-11"><span class="toc-number">1.13.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-11"><span class="toc-number">1.13.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E3%80%81%E8%B0%83%E8%AF%95%E5%BB%BA%E8%AE%AE%E3%80%81%E5%90%88%E8%A7%84%E6%8F%90%E9%86%92"><span class="toc-number">1.14.</span> <span class="toc-text">13. 常见问题、调试建议、合规提醒</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%BD%8D-12"><span class="toc-number">1.14.1.</span> <span class="toc-text">功能定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95-12"><span class="toc-number">1.14.2.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%94%A8%E6%B3%95-12"><span class="toc-number">1.14.3.</span> <span class="toc-text">扩展用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0-12"><span class="toc-number">1.14.4.</span> <span class="toc-text">常用参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1-%E5%8F%AF%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95-12"><span class="toc-number">1.14.5.</span> <span class="toc-text">返回对象&#x2F;可继续调用的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-12"><span class="toc-number">1.14.6.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-12"><span class="toc-number">1.14.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2026/06/03/Git分支命名与提交规范/">Git 分支命名与提交规范</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2026/06/19/scrapling-usage-manual/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const links = tocs ? tocs.querySelectorAll('a') : []
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        const href = decodeURIComponent(e.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+       
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer"><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/#/Integrated/index">2</a> </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const operateDom = document.querySelector('.main-right .operate-items')
+    const commentDom = document.querySelector('.turn-comment')
+    const cateloguDom = document.querySelector('.article-catelogue > .article-catelogue--wrapper');
+
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+        const newDom = operateDom.cloneNode(true);
+        const _backtopDom = newDom.querySelector('.backtop');
+        const _commentDom = newDom.querySelector('.turn-comment');
+        _backtopDom.addEventListener('click', () => backTopEvent());
+        _commentDom.addEventListener('click', () => commentDomEvent());
+        cateloguDom.appendChild(newDom);
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡布达","artist":"暂无","url":"music/kabuda.mp3","cover":"https://img2.baidu.com/it/u=705831265,2862720033&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    backTopEvent();
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    commentDomEvent();
+  })
+
+  function backTopEvent() {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  function commentDomEvent() {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  }
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+  <div id="gray" class="gray"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+    const rootPath = "/"
+
+    const checkAndSetArticlePageLayout = () => {
+      const path = location.pathname.replace(rootPath, '');
+      if (
+        /^\/?\d{4}\/\d{2}\/\d{2}\/.*/.test(path) ||
+        /^log\/.+/.test(path)
+      ) {
+        $('.main-container, .main-right, .main-right-wrapper').addClass('is-article')
+      } else {
+        $('.main-container, .main-right, .main-right-wrapper').removeClass('is-article')
+      }
+    }
+
+    const gray = "none"
+    const setGrayStyle = () => {
+      if (gray === 'none') {
+        return
+      } else if (gray === 'index') {
+        location.pathname === '/' ? $('#gray').show() : $('#gray').hide()
+      } else if (gray === 'all') {
+        $('#gray').show()
+      }
+    }
+    setGrayStyle()
+
+
+    window.onload = function () {
+      checkAndSetArticlePageLayout()
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll();
+        }, 500)
+      }, 500)
+    }
+    
+    let status = 0
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {
+      container: '#main-container',
+      fragment: '#main-container',
+      timeout: 8000
+    })
+
+    $(document).on('pjax:start', function() {
+    })
+    $(document).on('pjax:complete', function() {
+      status = 0
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+      setGrayStyle()
+      checkAndSetArticlePageLayout()
+    })
+    $(document).on('pjax:popstate', function() {
+      status = -1
+      checkAndSetArticlePageLayout()
+    });
+  </script>
+</body>
+</html>
